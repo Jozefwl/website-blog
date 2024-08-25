@@ -104,14 +104,14 @@ This project aims to create a fully customizable personal website with a blog, b
 ### Usage
 
 - **Frontend:** Access the frontend by navigating to `http://localhost:3000` in your browser.
-- **Backend:** The backend API can be accessed at `http://localhost:5000/api`.
+- **Backend:** The backend API can be accessed at `http://localhost:5000/`.
 
 ### API Endpoints
 
-- **/api/auth/login:** POST request for user authentication.
-- **/api/blogposts:** GET request to fetch all blog posts.
-- **/api/blogposts/:id:** GET, PUT, DELETE requests for managing individual blog posts.
-- **/api/blogposts/add:** POST request to create a new blog post.
+- **/auth/login:** POST request for user authentication.
+- **/blogposts:** GET request to fetch all blog posts.
+- **/blogposts/:id:** GET, PUT, DELETE requests for managing individual blog posts.
+- **/blogposts/add:** POST request to create a new blog post.
 
 ## Roadmap
 
