@@ -28,3 +28,82 @@ p {
   justify-content: center;
   height: 13vh; /* Optional: only if you want to center vertically in the whole viewport */
 }
+
+.typewriter {
+  overflow: hidden; /* Ensures the text is hidden until it's revealed */
+  border-right: 0.15em solid orange; /* Creates the cursor effect */
+  white-space: nowrap; /* Prevents the text from wrapping */
+  margin: 0 auto; /* Centers the text */
+  letter-spacing: 0.15em; /* Adds some spacing between letters */
+  animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+  display: inline-block; /* Ensures the text width is limited by content */
+}
+
+@keyframes typing {
+  from { 
+    width: 0; 
+  }
+  to { 
+    width: 100%; 
+  }
+}
+
+@keyframes blink-caret {
+  from, to { border-color: transparent; }
+  50% { border-color: orange; }
+}
+
+.contact-container {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+  color: white; /* Ensure text color is black */
+}
+
+.contact-info {
+  margin-bottom: 20px;
+}
+
+.contact-info p {
+  color: white; /* Ensure text color is black */
+}
+
+.contact-form {
+  margin-top: 20px;
+}
+
+.contact-form form {
+  display: flex;
+  flex-direction: column;
+}
+
+.contact-form label {
+  margin-top: 10px;
+  color: black; /* Ensure label text color is black */
+}
+
+.contact-form input,
+.contact-form textarea {
+  margin-top: 5px;
+  padding: 10px;
+  font-size: 16px;
+  color: black; /* Ensure input text color is black */
+  background-color: white; /* Ensure input background color is white */
+  border: 1px solid #ccc; /* Add a border to inputs */
+  border-radius: 4px; /* Add rounded corners to inputs */
+}
+
+.contact-form button {
+  margin-top: 20px;
+  padding: 10px;
+  font-size: 16px;
+  background-color: #007BFF;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px; /* Add rounded corners to button */
+}
+
+.contact-form button:hover {
+  background-color: #0056b3;
+}
