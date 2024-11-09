@@ -1,26 +1,31 @@
 import Image from 'next/image';
+import TextAnim from '../components/animatedtext';
+import Metrics from '../components/metrics';
+import WeatherWidget from '../components/weatherwidget';
+import Spline from '@splinetool/react-spline/next';
+
+import '../css/textanim.css';
+
 
 export default function Home() {
   return (
     <div style={{ textAlign: 'center', padding: '50px' }}>
-<Image
-  src="/images/title.png"
-  alt="Placeholder Image"
-  width={300}
-  height={200}
-  style={{ display: 'block', margin: '0 auto'}}
-/>
-<h1 className="typewriter">Welcome to waldhauser.sk</h1>
+
+
+    <TextAnim text="waldhauser.sk"></TextAnim>
+
+    <div className="spline">
+    <Spline
+        scene="https://prod.spline.design/ax9XD5JSUAXslLu8/scene.splinecode" 
+      />
+      </div>     
 
       <p style={{ maxWidth: '600px', margin: '20px auto' }}>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus lacinia odio vitae vestibulum vestibulum. Cras venenatis euismod malesuada.
+        Welcome to Jozef's website. Please, feel free to check out any page here. Have fun!
       </p>
-
-
-
-      <p style={{ maxWidth: '600px', margin: '20px auto' }}>
-       placeholdeeeeeeeeeeeeeeeeeeeee eeeeeeeeeeeeeeeeeeeeeee eeeeeeeeeeeeeeeeeer text
-      </p>
+      
+      <Metrics />
+      <WeatherWidget />
     </div>
   );
 }

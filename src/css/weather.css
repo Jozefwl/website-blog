@@ -1,0 +1,62 @@
+.weather-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    gap: 20px;
+  }
+  
+  .weather-widget {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #a9e0ff; /* Background color for widget */
+    padding: 10px;
+    border-radius: 8px;
+    position: relative; /* Needed for absolute positioning of overlay */
+    width: 216px;
+    transition: all 0.3s ease;
+  }
+  
+  .weather-widget a {
+    color: white;
+  }
+  
+  .expand-button {
+    width: 216px;
+    height: 40px;
+    background-color: #a9e0ff;
+    color: rgb(0, 0, 0);
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    text-align: center;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    margin-bottom: 10px;
+  }
+  
+  .expand-button:hover {
+    background-color: #00a2ff;
+    color: white;
+  }
+  
+  .weather-widgets {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  
+  @media (max-width: 600px) {
+    .weather-container {
+      flex-direction: column; /* Stack widgets vertically on mobile */
+      align-items: center; /* Center align items */
+    }
+  
+    .weather-widgets {
+      flex-direction: column; /* Stack widgets vertically on mobile */
+      gap: 10px;
+    }
+  }
+  

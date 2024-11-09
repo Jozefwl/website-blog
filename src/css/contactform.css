@@ -1,0 +1,64 @@
+/* contactform.css */
+
+.contact-container {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+  color: white;
+}
+
+.contact-info {
+  margin-bottom: 20px;
+}
+
+.contact-form {
+  margin-top: 20px;
+}
+
+.contact-form form {
+  display: flex;
+  flex-direction: column;
+}
+
+.contact-form label {
+  margin-top: 10px;
+  color: white; /* Ensure label text color is white */
+}
+
+.contact-form input,
+.contact-form textarea {
+  margin-top: 5px;
+  padding: 10px;
+  font-size: 16px;
+  color: black; /* Ensure input text color is black */
+  background-color: white; /* Ensure input background color is white */
+  border: 1px solid #ccc; /* Add a border to inputs */
+  border-radius: 4px; /* Add rounded corners to inputs */
+}
+
+.contact-form button {
+  margin-top: 20px;
+  padding: 10px;
+  font-size: 16px;
+  background-color: #007BFF;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px; /* Add rounded corners to button */
+}
+
+.contact-form button:hover {
+  background-color: #0056b3;
+}
+
+h1 {
+  margin-top: 60px; /* Add margin to create space between Navbar and h1 */
+  text-align: center;
+  margin-bottom: 4rem;
+}
+
+@media (max-width: 600px) {
+.contact-header{
+  font-size: 3rem;
+}
+}

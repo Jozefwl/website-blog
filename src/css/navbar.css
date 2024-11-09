@@ -1,0 +1,11 @@
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background-color: #000; /* Adjust the background color as needed */
+    border-bottom: 1px solid blue; /* Add a blue line below the navbar */
+    z-index: 1000; /* Ensure the navbar is above other content */
+    padding-top: 10px;
+    margin-bottom: 40px;
+  }

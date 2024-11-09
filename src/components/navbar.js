@@ -1,3 +1,4 @@
+import '../css/navbar.css';
 import '../app/globals.css';
 
 export default function Navbar() {
