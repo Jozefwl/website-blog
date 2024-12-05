@@ -6,13 +6,13 @@ export default function Navbar() {
   return (
     <nav className="navbar w-full flex justify-between p-4 font-orbitron">
       <Link href="/" passHref>
-        <a>Home</a>
+        Home
       </Link>
       <Link href="/about" passHref>
-        <a>About</a>
+        About
       </Link>
       <Link href="/contact" passHref>
-        <a>Contact</a>
+        Contact
       </Link>
     </nav>
   );
