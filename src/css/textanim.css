@@ -1,0 +1,36 @@
+.text-container {
+    display: inline-block;
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    padding-top: 1rem;
+  }
+  
+  .word {
+    display: inline;
+  }
+  
+  .space {
+    display: inline;
+  }
+  
+  .letter {
+    display: inline-block;
+    opacity: 0;
+    transform: scale(0) rotate(0deg);
+    transition: opacity 1s ease-out, transform 2s ease-out;
+  }
+  
+  .animate {
+    opacity: 1;
+    transform: scale(1) rotate(360deg);
+  }
+  
+  @media (max-width: 600px) {
+    .text-container {
+        font-size: 1.75rem;
+        margin-bottom: 2rem;
+    }
+    .word {
+      display: block;
+    }
+  }
