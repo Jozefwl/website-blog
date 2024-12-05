@@ -20,6 +20,13 @@ export default function Imagebox({ srcArray, altArray, captionArray }) {
     return () => clearInterval(interval);
   }, [srcArray.length]);
 
+  useEffect(() => {
+    // Preload the next image
+    const nextIndex = (currentIndex + 1) % srcArray.length;
+    const img = new Image();
+    img.src = srcArray[nextIndex];
+  }, [currentIndex, srcArray]);
+
   return (
     <div className="bg-gray-900 p-6 sm:p-8 rounded-lg shadow-lg w-full max-w-2xl mx-auto">
       <div className={`relative w-full h-64 sm:h-80 md:h-96 ${fade ? 'fade-in' : 'fade-out'}`}>
