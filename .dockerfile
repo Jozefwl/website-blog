@@ -10,8 +10,11 @@ COPY package*.json ./
 # Install dependencies
 RUN npm install --frozen-lockfile
 
-# Copy the rest of the application code
+# Copy the rest of the application code, including .env
 COPY . .
+
+# Ensure the .env file is copied explicitly (if it's not ignored)
+COPY .env ./
 
 # Build the Next.js app
 RUN npm run build
