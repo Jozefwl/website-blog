@@ -19,8 +19,8 @@ COPY .env ./
 # Build the Next.js app
 RUN npm run build
 
-# Expose port 3000 (default port for Next.js)
-EXPOSE 3000
+# Expose port 2000 because yes i want this port
+EXPOSE 2000
 
 # Start the app in production mode
 CMD ["npm", "start"]
