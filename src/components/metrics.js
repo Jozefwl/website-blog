@@ -1,14 +1,30 @@
+"use client";
+
 import React, { useEffect, useState } from 'react';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import '../css/metrics.css';
 
 const fetchMetrics = async () => {
-  const response = await fetch('https://metrics.fabrikanazemiaky.eu/metrics'); // Fetch from the backend
-  if (!response.ok) {
-    throw new Error('Failed to fetch metrics');
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 seconds timeout
+
+  try {
+    const response = await fetch('https://metrics.fabrikanazemiaky.eu/metrics', {
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch metrics');
+    }
+    return response.json();
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      throw new Error('Request timed out');
+    }
+    throw error;
   }
-  return response.json();
 };
 
 const Metrics = () => {
