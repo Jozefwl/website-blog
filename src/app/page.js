@@ -18,8 +18,10 @@ export default function Home() {
       </div>
 
       <p style={{ maxWidth: '600px', margin: '20px auto' }}>
-        Welcome to Jozef&apos;s website. Please, feel free to check out any page here. Have fun!
+        Welcome to Jozef&apos;s website.
       </p>
+
+      <p> Spin the laptop for amusement.</p>
 
       <Metrics />
       <WeatherWidget />

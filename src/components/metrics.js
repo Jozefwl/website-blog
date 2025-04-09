@@ -10,10 +10,12 @@ const fetchMetrics = async () => {
   const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 seconds timeout
 
   try {
-    const response = await fetch('https://metrics.fabrikanazemiaky.eu/metrics', {
+    const response = await fetch('http://localhost:5000/metrics', {
       signal: controller.signal,
     });
     clearTimeout(timeoutId);
+
+    //console.log('Response:', response); //debug
 
     if (!response.ok) {
       throw new Error('Failed to fetch metrics');
@@ -51,9 +53,10 @@ const Metrics = () => {
   if (!metrics) {
     return <div>Loading...</div>;
   }
+  //console.log(metrics); //debug
 
-  const cpuUsage = metrics.cpu.length > 0 ? parseFloat(metrics.cpu[0].value[1]) : 0;
-  const memoryUsage = metrics.memory.length > 0 ? parseFloat(metrics.memory[0].value[1]) : 0;
+  const cpuUsage = metrics.cpuUsage;
+  const memoryUsage = metrics.memoryUsage;
 
   return (
     <>
@@ -69,7 +72,7 @@ const Metrics = () => {
               trailColor: 'grey',
             })}
           />
-          <p className="metric-label">CPU Usage</p>
+          <p className="metric-label">1x N3710 Core</p>
         </div>
         <div className="metric">
           <CircularProgressbar
@@ -81,9 +84,10 @@ const Metrics = () => {
               trailColor: 'grey',
             })}
           />
-          <p className="metric-label">Memory Usage</p>
+          <p className="metric-label">% of 768MB</p>
         </div>
       </div>
+      <p>Hint: refresh the page to increase CPU usage.</p>
     </>
   );
 };

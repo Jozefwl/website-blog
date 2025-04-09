@@ -13,7 +13,7 @@ export default function Imagebox({ srcArray, altArray, captionArray }) {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setFade(false); // Start fading out the current image
+      setFade(true); // "fading" out the current image (this fixes flicker)
       setTimeout(() => {
         setCurrentIndex((prevIndex) => getNextIndex(prevIndex)); // Update index to the next image
         setFade(true); // Start fading in the next image

@@ -20,9 +20,8 @@ const WeatherWidget = () => {
             >
                 {isExpanded ? 'Collapse Weather' : 'Expand Weather'}
             </button>
+            <p>Yes I know the weather widget doesn&apos;t work on portrait mode for tablets, yes I don&apos;t care.</p>
             <div className="weather-container">
-
-
                 {isExpanded && (
                     <div className="weather-widgets">
                         <div className="weather-container">

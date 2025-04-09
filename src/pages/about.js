@@ -44,7 +44,7 @@ export default function About() {
           </h1>
           </div>
           <p className="text-lg sm:text-xl text-gray-300 leading-relaxed">
-            ICT Administrator | Remote Student | Tech Enthusiast
+            Self-Proclaimed &ldquo;IT Guy&ldquo; | Student | Tech enjoyer
           </p>
         </div>
 
@@ -54,40 +54,26 @@ export default function About() {
           <Infobox
             title="Professional Background"
             content={[
-              "Hello! I am Jozef Waldhauser, an ICT Administrator currently working at Unicorn Systems Ltd.",
-              "My main job is to ensure company applications are working properly, and deploying new production versions of applications.",
-              "The second part of my job is being a configuration manager, where I work for multiple projects."
+              "Currently emplyoed as an ICT Admin at Unicorn Systems",
+              "I help our team manage some over 150 apps.",
+              "Recently I also started doing config management.",
+              "I have had a job for almost 2 years now."
             ]}
           />
 
           <Infobox
-            title="Education"
+            title="Interests"
             content={[
-              "I am also a remote student at Unicorn University Ltd., focusing on Software Development.",
-              "My academic background includes a magna cum laude graduation from SPŠ Snina."
-            ]}
-          />
-
-          <Infobox
-            title="Experience"
-            content={[
-              "I have worked as second line support for over a year now, where I can safely say I have gained a lot of experience in the field.",
-              "My work as a configuration manager has shown me more insight into what truly lies behind our company infrastructure."
-            ]}
-          />
-
-          <Infobox
-            title="Interests & Certifications"
-            content={[
-              "My interests include computer hardware, servers, gaming and a tiny bit in car culture.",
-              "As a bilingual I can write and speak in Slovak and English perfectly. I know the basics of Russian and German."
+              "Servers, computers, hardware (2025 kinda meh but still), audio equipment, 3d printing, 3d modelling, CAD modelling, electronics, soldering, welding, drawing, singing, hikes, airsoft, history, recently politics (believe it or not).",
+              "Native Slovak, spoke English my whole life, tiny bit of German and not great not terrible Russian.",
+              "I like making new things, but when it comes to programming I think of it as lego, not as carving wood."
             ]}
           />
 
           <Infobox
             title="Let's Connect"
             content={[
-              "Feel free to connect with me to discuss anything!"
+              "Pretty buttons from Town X near you ↓",
             ]}
           /> 
         </div>
