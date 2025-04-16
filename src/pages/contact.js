@@ -7,7 +7,6 @@ import { useState } from "react";
 export default function Contact() {
   const [formData, setFormData] = useState({
     name: "",
-    email: "",
     message: ""
   });
 
@@ -21,8 +20,8 @@ export default function Contact() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const { name, email, message } = formData;
-    const mailtoLink = `mailto:jozef@waldhauser.sk?subject=Contact%20Form%20Submission&body=Name:%20${encodeURIComponent(name)}%0AEmail:%20${encodeURIComponent(email)}%0AMessage:%20${encodeURIComponent(message)}`;
+    const { name, message } = formData;
+    const mailtoLink = `mailto:jozef@waldhauser.sk?subject=Contact%20Form%20Submission&body=----- Contact Form Submission ----- %0A%0AName:%20${encodeURIComponent(name)}%0A%0AMessage:%0A${encodeURIComponent(message)}%0A%0A-----------------------------------`;    
     window.location.href = mailtoLink;
   };
 
@@ -33,6 +32,7 @@ export default function Contact() {
         <h1 className="contact-header">Contact Me</h1>
         
         <div className="contact-info">
+          <p>Please feel free to contact me!</p>
           <p>jozef@waldhauser.sk</p>
           <Socialsbar />
         </div>
@@ -42,9 +42,6 @@ export default function Contact() {
           <form onSubmit={handleSubmit}>
             <label className="contact-label" htmlFor="name">Name:</label>
             <input type="text" id="name" name="name" value={formData.name} onChange={handleChange} required />
-            
-            <label className="contact-label" htmlFor="email">Email:</label>
-            <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} required />
             
             <label className="contact-label" htmlFor="message">Message:</label>
             <textarea id="message" name="message" rows="4" value={formData.message} onChange={handleChange} required></textarea>
