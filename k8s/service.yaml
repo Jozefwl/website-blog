@@ -1,0 +1,13 @@
+# service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: website-service
+spec:
+  type: LoadBalancer  # Or NodePort for local setups
+  selector:
+    app: website-app
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
