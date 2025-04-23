@@ -1,26 +1,18 @@
-# Use official Node.js image as a base
+# 1. Build stage
+FROM node:18-alpine AS builder
+
+WORKDIR /app
+COPY . .
+RUN npm install && npm run build
+
+# 2. Production stage
 FROM node:18-alpine
 
-# Set working directory inside the container
 WORKDIR /app
+COPY --from=builder /app ./
 
-# Copy package.json and package-lock.json first to install dependencies separately
-COPY package*.json ./
+# Expose Next.js default port
+EXPOSE 3000
 
-# Install dependencies
-RUN npm install --frozen-lockfile
-
-# Copy the rest of the application code, including .env
-COPY . .
-
-# Ensure the .env file is copied explicitly (if it's not ignored)
-COPY .env ./
-
-# Build the Next.js app
-RUN npm run build
-
-# Expose port 2000 because yes i want this port
-EXPOSE 2000
-
-# Start the app in production mode
+# Run app
 CMD ["npm", "start"]
