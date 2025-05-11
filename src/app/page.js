@@ -21,8 +21,11 @@ export default function Home() {
 
   Date.prototype.getWeekNumber = function () {
     const oneJan = new Date(this.getFullYear(), 0, 1);
+    //console.log(oneJan); //debug
     const numberOfDays = Math.floor((this - oneJan) / (24 * 60 * 60 * 1000));
-    const weekNumber = Math.ceil((this.getDay() + 1 + numberOfDays) / 7);
+    //console.log(numberOfDays); //debug
+    //const numberOfDays = 131; 
+    const weekNumber = (numberOfDays-numberOfDays%7)/7 + 1;
     return weekNumber;
   }
 
