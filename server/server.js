@@ -4,7 +4,7 @@ const app = express();
 const port = 5000;
 
 // Correct Prometheus URL (Kubernetes internal DNS)
-const prometheusUrl = 'http://prometheus-prometheus-stack-kube-prom-prometheus.monitoring.svc.cluster.local:9090';
+const prometheusUrl = 'http://prometheus-stack-kube-prom-prometheus.monitoring:9090';
 
 // PromQL queries
 const cpuQuery = '100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100';
