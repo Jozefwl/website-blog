@@ -10,7 +10,7 @@ const fetchMetrics = async () => {
   const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 seconds timeout
 
   try {
-    const response = await fetch('http://metrics.waldhauser.sk/metrics', {
+    const response = await fetch('https://metrics.waldhauser.sk/metrics', {
       signal: controller.signal,
     });
     clearTimeout(timeoutId);
