@@ -3,6 +3,7 @@ import Navbar from "../components/navbar";
 import Socialsbar from "../components/socialsbar";
 import Infobox from "../components/infobox";
 import Imagebox from "../components/imagebox";
+import CookieNotice from "../components/cookienotice";
 
 export default function About() {
   const src = [
@@ -48,6 +49,7 @@ export default function About() {
     "Somewhere, Italy",
   ];
   return (
+    <> <CookieNotice />
     <div className="min-h-screen text-gray-100 bg-black">
       <Navbar />
       <div className="container mx-auto px-6 py-10 sm:py-16 lg:px-8">
@@ -95,5 +97,6 @@ export default function About() {
 
       <div className="border-t-2 border-blue-400 mt-8 sm:mt-16"></div>
     </div>
+    </>
   );
 }

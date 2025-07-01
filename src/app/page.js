@@ -4,13 +4,17 @@ import TextAnim from "../components/animatedtext";
 import Metrics from "../components/metrics";
 import WeatherWidget from "../components/weatherwidget";
 import Infobox from "../components/infobox";
-
+import CookieNotice from "../components/cookienotice";
 import "../css/textanim.css";
 
 export default function Home() {
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    // Set isClient to true after component mounts
+    setIsClient(true);
+    
     const interval = setInterval(() => {
       setCurrentTime(new Date());
     }, 50);
@@ -19,40 +23,52 @@ export default function Home() {
     return () => clearInterval(interval);
   }, []);
 
-Date.prototype.getWeekNumber = function () {
-  // Create a copy of the date to avoid modifying the original
-  let date = new Date(this);
-  date.setHours(0, 0, 0, 0);
-  // Set to the nearest Thursday (ISO week starts on Monday, but counting is easier with Thursday)
-  date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
-  // Get the first day of the year
-  let yearStart = new Date(date.getFullYear(), 0, 1);
-  // Calculate the number of days since the year start
-  let dayCount = Math.floor((date - yearStart) / (24 * 60 * 60 * 1000));
-  // Calculate week number
-  let weekNumber = Math.ceil((dayCount + 1) / 7);
-  return weekNumber;
-};
+  Date.prototype.getWeekNumber = function () {
+    const oneJan = new Date(this.getFullYear(), 0, 1);
+    const numberOfDays = Math.floor((this - oneJan) / (24 * 60 * 60 * 1000));
+    const weekNumber = (numberOfDays - numberOfDays % 7) / 7 + 1;
+    return weekNumber;
+  }
 
-  const isoDate = currentTime.toISOString().split("T");
-  const week = currentTime.getWeekNumber();
-  const year = currentTime.getFullYear();
+  // Only calculate time-based values on the client side
+  const getTimeBasedContent = () => {
+    if (!isClient) {
+      return [
+        "Loading...",
+        "Loading...",
+        "Loading...",
+      ];
+    }
+    
+    const isoDate = currentTime.toISOString().split("T");
+    const week = currentTime.getWeekNumber();
+    const year = currentTime.getFullYear();
+    
+    return [
+      `It is week ${week} of the year ${year}.`,
+      `Date: ${isoDate[0]}`,
+      `Time: ${isoDate[1]}`,
+    ];
+  };
 
   return (
-    <div style={{ textAlign: "center", padding: "50px" }}>
-      <TextAnim text="waldhauser.sk" />
+    <>
+      <CookieNotice />
+      
+      {/* Main Content */}
+      <div style={{ textAlign: "center", padding: "50px" }}>
+        <TextAnim text="waldhauser.sk" />
+        <Infobox
+          title="Welcome to Jozef's website"
+          content={getTimeBasedContent()}
+        />
+        <hr style={{ border: "1px solid rgb(0, 0, 71)", margin: "20px 0" }} />
+        <Metrics />
+        <WeatherWidget />
+        
+        
 
-      <Infobox
-        title="Welcome to Jozef's website"
-        content={[
-          `It is week ${week} of the year ${year}.`,
-          `Date: ${isoDate[0]}`,
-          `Time: ${isoDate[1]}`,
-        ]}
-      />
-      <hr style={{ border: "1px solid rgb(0, 0, 71)", margin: "20px 0" }} />
-      <Metrics />
-      <WeatherWidget />
-    </div>
+      </div>
+    </>
   );
 }

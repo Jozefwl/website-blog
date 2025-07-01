@@ -1,5 +1,4 @@
 "use client";
-
 import React, { useEffect, useState } from 'react';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
@@ -14,12 +13,11 @@ const fetchMetrics = async () => {
       signal: controller.signal,
     });
     clearTimeout(timeoutId);
-
-    //console.log('Response:', response); //debug
-
+    
     if (!response.ok) {
       throw new Error('Failed to fetch metrics');
     }
+    
     return response.json();
   } catch (error) {
     if (error.name === 'AbortError') {
@@ -37,12 +35,12 @@ const Metrics = () => {
     async function getMetrics() {
       try {
         const data = await fetchMetrics();
+        console.log('Fetched data:', data); // Debug: Check the actual structure
         setMetrics(data);
       } catch (error) {
         setError(error.message);
       }
     }
-
     getMetrics();
   }, []);
 
@@ -53,10 +51,10 @@ const Metrics = () => {
   if (!metrics) {
     return <div>Loading...</div>;
   }
-  //console.log(metrics); //debug
 
-  const cpuUsage = metrics.cpuUsage;
-  const memoryUsage = metrics.memoryUsage;
+  // Extract CPU and memory usage from the API response structure
+  const cpuUsage = metrics.cpu?.[0]?.value?.[1] ? parseFloat(metrics.cpu[0].value[1]) : 0;
+  const memoryUsage = metrics.memory?.[0]?.value?.[1] ? parseFloat(metrics.memory[0].value[1]) : 0;
 
   return (
     <>
@@ -72,7 +70,7 @@ const Metrics = () => {
               trailColor: 'grey',
             })}
           />
-          <p className="metric-label">1x N3710 Core</p>
+          <p className="metric-label">256m CPU</p>
         </div>
         <div className="metric">
           <CircularProgressbar
@@ -84,10 +82,9 @@ const Metrics = () => {
               trailColor: 'grey',
             })}
           />
-          <p className="metric-label">% of 768MB</p>
+          <p className="metric-label">256Mi RAM</p>
         </div>
       </div>
-      <p>Hint: refresh the page to increase CPU usage.</p>
     </>
   );
 };

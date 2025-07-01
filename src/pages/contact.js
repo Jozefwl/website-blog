@@ -2,6 +2,7 @@ import "../app/globals.css";
 import "../css/contactform.css";
 import Navbar from "../components/navbar";
 import Socialsbar from "../components/socialsbar";
+import CookieNotice from "../components/cookienotice";
 import { useState } from "react";
 
 export default function Contact() {
@@ -27,6 +28,7 @@ export default function Contact() {
 
   return (
     <div>
+      <CookieNotice></CookieNotice>
       <Navbar />
       <div className="contact-container">
         <h1 className="contact-header">Contact Me</h1>
