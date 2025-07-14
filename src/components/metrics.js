@@ -70,7 +70,7 @@ const Metrics = () => {
               trailColor: 'grey',
             })}
           />
-          <p className="metric-label">256m CPU</p>
+          <p className="metric-label">i5-3320M CPU</p>
         </div>
         <div className="metric">
           <CircularProgressbar
@@ -82,7 +82,7 @@ const Metrics = () => {
               trailColor: 'grey',
             })}
           />
-          <p className="metric-label">256Mi RAM</p>
+          <p className="metric-label">16Gi RAM</p>
         </div>
       </div>
     </>
