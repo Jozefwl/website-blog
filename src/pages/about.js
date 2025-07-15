@@ -72,7 +72,7 @@ export default function About() {
             content={[
               "Currently employed as an ICT Admin at Unicorn Systems",
               "I help our team manage some over 150 apps.",
-              "Recently I also started doing config management.",
+              "Recently I also started doing DevOps.",
               "I have had a job for over 2 years now.",
             ]}
           />
@@ -80,9 +80,9 @@ export default function About() {
           <Infobox
             title="Interests"
             content={[
-              "Servers, computers, hardware (2025 kinda meh but still), audio equipment, 3d printing, 3d modelling, CAD modelling, electronics, soldering, welding, drawing, singing, hikes, airsoft, history.",
-              "Native Slovak, spoke English my whole life, tiny bit of German and not great not terrible Russian.",
-              "I like making new things, but when it comes to programming I think of it as lego, not as carving wood.",
+              "Servers, computers, hardware, audio equipment, 3d printing, 3d modelling, CAD modelling, electronics, soldering, welding, drawing, singing, hikes, airsoft, history.",
+              "Native Slovak, spoke English my whole life, tiny bit of German and and OK Russian.",
+              "I am currently trying to get better at automation, kubernetes and programming.",
             ]}
           />
 
