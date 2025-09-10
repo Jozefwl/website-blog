@@ -1,0 +1,13 @@
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: "{{ backend_app_name }}-service-{{ target_backend_env }}"
+        namespace: "{{ namespace }}"
+      spec:
+        selector:
+          app: "{{ backend_app_name }}"
+          env: "{{ target_backend_env }}"
+        ports:
+          - port: 5000
+            targetPort: 5000
+        type: ClusterIP

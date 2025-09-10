@@ -1,0 +1,48 @@
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: "{{ frontend_app_name }}-{{ target_frontend_env }}"
+        namespace: "{{ namespace }}"
+        labels:
+          app: "{{ frontend_app_name }}"
+          env: "{{ target_frontend_env }}"
+          version: "{{ version_frontend }}"
+      spec:
+        replicas: "{{ replicas }}"
+        selector:
+          matchLabels:
+            app: "{{ frontend_app_name }}"
+            env: "{{ target_frontend_env }}"
+        template:
+          metadata:
+            labels:
+              app: "{{ frontend_app_name }}"
+              env: "{{ target_frontend_env }}"
+              version: "{{ version_frontend }}"
+          spec:
+            containers:
+              - name: "{{ frontend_app_name }}"
+                image: "{{ app_host }}:{{ nodeport_registry }}/website-blog:{{ version_frontend }}"
+                ports:
+                  - containerPort: 3000
+                readinessProbe:
+                  httpGet:
+                    path: /
+                    port: 3000
+                  initialDelaySeconds: 15
+                  periodSeconds: 5
+                  timeoutSeconds: 10
+                livenessProbe:
+                  httpGet:
+                    path: /
+                    port: 3000
+                  initialDelaySeconds: 45
+                  periodSeconds: 10
+                  timeoutSeconds: 10
+                resources:
+                  requests:
+                    memory: "128Mi"
+                    cpu: "128m"
+                  limits:
+                    memory: "256Mi"
+                    cpu: "256m"
