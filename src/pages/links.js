@@ -28,6 +28,7 @@ export default function Links() {
            <Linksbox image="https://cdn.waldhauser.sk/icons/planka.png" text="Planka" link="https://planka.waldhauser.sk"/>
            <Linksbox image="https://cdn.waldhauser.sk/icons/monitoring.jpg" text="Monitoring" link="https://stats.uptimerobot.com/kmCYs70MbD"/>
            <Linksbox image="https://cdn.waldhauser.sk/icons/nodejs.png" text="Backend" link="https://metrics.waldhauser.sk"/>
+           <Linksbox image="https://cdn.waldhauser.sk/icons/cdn.png" text="CDN" link="https://cdn.waldhauser.sk"/>
       </div>
     </div>
     );
