@@ -11,6 +11,9 @@ export default function Navbar() {
       <Link href="/about" passHref>
         About
       </Link>
+      <Link href="/links">
+        Links
+      </Link>
       <Link href="/contact" passHref>
         Contact
       </Link>

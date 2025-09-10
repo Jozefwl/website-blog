@@ -1,0 +1,31 @@
+/* links.css */
+
+.links-container {
+    padding-top: 4em;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.leftimage-linktext-row {
+    display: flex;
+    align-items: center;
+    gap: 1em; /* space between image and text */
+}
+
+.leftimage {
+    /* Adjust size as needed */
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
+}
+
+.linktext {
+    font-size: 1.2em;
+    color: #ffffff;
+}
+
+.linksbox {
+    padding: 20px
+}
