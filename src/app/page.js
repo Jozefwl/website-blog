@@ -71,9 +71,11 @@ Date.prototype.getWeekNumber = function() {
           title="Welcome to Jozef's website"
           content={getTimeBasedContent()}
         />
+        
         <hr style={{ border: "1px solid rgb(0, 0, 71)", margin: "20px 0" }} />
         <Metrics />
         <WeatherWidget />
+        v0.1.3
         
         
 
