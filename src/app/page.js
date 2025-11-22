@@ -75,7 +75,7 @@ Date.prototype.getWeekNumber = function() {
         <hr style={{ border: "1px solid rgb(0, 0, 71)", margin: "20px 0" }} />
         <Metrics />
         <WeatherWidget />
-        v0.1.3
+        v0.1.5-secure
         
         
 

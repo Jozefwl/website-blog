@@ -10,7 +10,7 @@ ENV NODE_ENV=production
 RUN npm run build
 #Runtime: tiny image; no node_modules copied directly
 
-FROM gcr.io/distroless/nodejs24 AS runner
+FROM cgr.dev/chainguard/node:latest AS runner
 #For alpine alternative: use node:24-alpine and add a non-root user; distroless is smaller.
 
 WORKDIR /app
