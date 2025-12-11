@@ -3,9 +3,9 @@
 import React, { useState } from "react";
 import "../css/weather.css";
 
-const WeatherWidget = () => {
+const WeatherWidget = ({ isExpanded: initialExpanded = false }) => {
   // State to toggle the visibility of the widgets
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(initialExpanded);
 
   // Toggle function to expand or collapse the widget
   const toggleWidget = () => {
@@ -21,7 +21,6 @@ const WeatherWidget = () => {
         {isExpanded && (
           <div className="weather-widgets">
             <div className="weather-container">
-
               <div className="weather-widget">
                 <iframe
                   src="https://www.meteoblue.com/sk/po%C4%8Dasie/widget/daily/snina_slovensko_723559?geoloc=fixed&days=4&tempunit=CELSIUS&windunit=KILOMETER_PER_HOUR&precipunit=MILLIMETER&coloured=coloured&pictoicon=1&maxtemperature=1&mintemperature=1&windspeed=1&windgust=0&winddirection=1&uv=0&humidity=0&precipitation=1&precipitationprobability=1&spot=1&pressure=0&layout=light"
@@ -63,7 +62,6 @@ const WeatherWidget = () => {
                   </a>
                 </div>
               </div>
-
 
               <div className="weather-widget">
                 <iframe
