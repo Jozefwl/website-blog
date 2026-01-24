@@ -70,10 +70,9 @@ export default function About() {
           <Infobox
             title="Professional Background"
             content={[
-              "Currently employed as an ICT Admin at Unicorn Systems",
-              "I help our team manage some over 150 apps.",
-              "Recently I also started doing DevOps.",
-              "I have had a job for over 2 years now.",
+              "I started working as SLS support",
+              "Currently employed as an Configuration Manager at Unicorn Systems",
+              "I help manage and deploy the Unicorn Enterprise Platform.",
             ]}
           />
 

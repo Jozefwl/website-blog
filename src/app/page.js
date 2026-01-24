@@ -6,6 +6,7 @@ import WeatherWidget from "../components/weatherwidget";
 import Infobox from "../components/infobox";
 import CookieNotice from "../components/cookienotice";
 import "../css/textanim.css";
+const version = process.env.NEXT_PUBLIC_APP_VERSION
 
 export default function Home() {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -75,7 +76,7 @@ Date.prototype.getWeekNumber = function() {
         <hr style={{ border: "1px solid rgb(0, 0, 71)", margin: "20px 0" }} />
         <Metrics />
         <WeatherWidget />
-        v0.1.7
+        v{version}
         
         
 

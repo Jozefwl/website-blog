@@ -42,6 +42,10 @@ p {
   margin: 1rem 0; /* Add some margin to separate paragraphs */
 }
 
+.spacer{
+  margin-top: 100px
+}
+
 @media (max-width: 600px) {
 
 }
