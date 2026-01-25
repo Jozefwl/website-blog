@@ -30,12 +30,14 @@ export default function Links() {
            <Linksbox image="https://cdn.waldhauser.sk/icons/monitoring.jpg" text="Monitoring" link="https://monitoring.waldoserver.top/status/waldhauser-services"/>
            <Linksbox image="https://cdn.waldhauser.sk/icons/nodejs.png" text="Backend" link="https://metrics.waldhauser.sk"/>
            <Linksbox image="https://cdn.waldhauser.sk/icons/cdn.png" text="CDN" link="https://cdn.waldhauser.sk"/>
+           <Linksbox image="https://cdn.waldhauser.sk/icons/erp.png" text="ERP" link="https://erp.waldhauser.sk"></Linksbox>
           <h3>
             === waldoserver.top ===
           </h3>
           <Linksbox image="https://cdn.waldhauser.sk/icons/server.png" text="Website" link="https://waldoserver.top"></Linksbox>
           <div className="spacer"></div>
-          <a href="https://www.flaticon.com/free-icons/server" title="server icons">Icons created by Freepik - Flaticon</a>
+          <a href="https://www.flaticon.com/free-icons/server" title="server icons">Server icons created by Freepik - Link</a>
+          <a href="https://www.flaticon.com/free-icons/erp" title="erp icons">Erp icons created by Vectorslab - Link</a>
       </div>
       
     </div>

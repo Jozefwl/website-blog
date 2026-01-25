@@ -1,3 +1,4 @@
+# docker build -t harbor.fabrikanazemiaky.eu/cloud/website-blog:0.1.2 --no-cache 
 FROM node:24-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
