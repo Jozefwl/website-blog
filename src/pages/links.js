@@ -1,6 +1,7 @@
 import "../app/globals.css";
 import "../css/links.css";
 import Navbar from "../components/navbar";
+import Socialsbar from "../components/socialsbar"
 import Linksbox from "../components/linksbox";
 import CookieNotice from "../components/cookienotice";
 import TextAnim from "../components/animatedtext";
@@ -38,6 +39,8 @@ export default function Links() {
           <div className="spacer"></div>
           <a href="https://www.flaticon.com/free-icons/server" title="server icons">Server icons created by Freepik - Link</a>
           <a href="https://www.flaticon.com/free-icons/erp" title="erp icons">Erp icons created by Vectorslab - Link</a>
+          <br></br>
+          <Socialsbar />
       </div>
       
     </div>

@@ -49,9 +49,9 @@ const CookieNotice = () => {
       }}>
         <div style={{ flex: 1, minWidth: '300px' }}>
           <p style={{ margin: 0, fontSize: '14px', lineHeight: '1.4' }}>
-            🍪 <strong>This site uses cookies</strong> for basic functionality. 
-            This is a personal website - I hold no liability for any content or services provided. 
-            Use at your own discretion.
+            <strong>Disclaimer:</strong> This site uses cookies for basic functionality.
+            Meteoblue's cookies are used by the weather widget (by clicking Expand Weather), cloudflare collects metrics for website statistics (these can be blocked with adblock), some metrics I collect: the IP address and userAgent into ephemeral log storage (cached, not saved, deleted from RAM when metrics server is restarted) in such a way that it cannot be linked to any individuals (security purposes). 
+            <br></br>For implementation details see my github in the <a href="/contact">Contact page</a> or <a href="/links">Links page</a>.
           </p>
         </div>
         <button
@@ -70,7 +70,7 @@ const CookieNotice = () => {
           onMouseOver={(e) => e.target.style.backgroundColor = 'rgb(0, 0, 100)'}
           onMouseOut={(e) => e.target.style.backgroundColor = 'rgb(0, 0, 71)'}
         >
-          Accept
+          Close
         </button>
       </div>
     </div>

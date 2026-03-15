@@ -37,7 +37,7 @@ app.use((req, res, next) => {
 
 app.set('trust proxy', true);
 
-app.get('/', (req, res) => res.send('Metrics API: Use /metrics endpoint'));
+app.get('/', (req, res) => res.json({message: "Metrics server is running. Metrics API: Use /metrics endpoint"}));
 app.get('/metrics', async (req, res) => {
   const forwarded = req.get('X-Forwarded-For');
   const clientIP = forwarded
