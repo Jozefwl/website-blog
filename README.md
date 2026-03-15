@@ -14,7 +14,15 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 ```
 docker-buildx build \
   --platform=linux/amd64 \
-  -t harbor.waldoserver.top/cloud/website-blog:0.2.2 \
+  -t harbor.waldoserver.top/cloud/website-blog:0.2.41 \
+  --no-cache \
+  .
+```
+
+```
+docker-buildx build \
+  --platform=linux/amd64 \
+  -t harbor.waldoserver.top/cloud/metrics-api:1.0.64 \
   --no-cache \
   .
 ```

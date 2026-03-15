@@ -4,6 +4,7 @@ const app = express();
 const port = 5000;
 
 const prometheusUrl = process.env.PROMETHEUS_URL;
+//const proxyIp = process.env.PROXY_IP;
 
 // queries
 const cpuQuery = '100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m]))) * 100';
@@ -34,8 +35,19 @@ app.use((req, res, next) => {
   next();
 });
 
+app.set('trust proxy', true);
+
 app.get('/', (req, res) => res.send('Metrics API: Use /metrics endpoint'));
 app.get('/metrics', async (req, res) => {
+  const forwarded = req.get('X-Forwarded-For');
+  const clientIP = forwarded
+    ? forwarded.split(',')[0].trim()   // first IP is the real client
+    : req.ip;
+  
+    const userAgent = req.get('User-Agent') || 'unknown';
+
+  console.log(`GET metrics; IP: ${clientIP}, User-Agent: ${userAgent}`);
+
   try {
     res.json(await fetchMetrics());
   } catch (error) {
