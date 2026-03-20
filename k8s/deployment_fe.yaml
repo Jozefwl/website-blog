@@ -6,7 +6,7 @@ metadata:
   labels:
     app: frontend
     env: green
-    version: 0.2.5
+    version: 0.2.5.1
 spec:
   replicas: 2
   selector:
@@ -23,13 +23,13 @@ spec:
       labels:
         app: frontend
         env: green
-        version: 0.2.5
+        version: 0.2.5.1.1
     spec:
       imagePullSecrets:
       - name: harbor-credentials
       containers:
       - name: frontend
-        image: harbor.waldoserver.top/cloud/website-blog:0.2.5
+        image: harbor.waldoserver.top/cloud/website-blog:0.2.5.1
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3000
