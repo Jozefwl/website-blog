@@ -6,7 +6,7 @@ metadata:
   labels:
     app: backend
     env: green
-    version: 1.0.2.1
+    version: 1.0.2.2
 spec:
   replicas: 2
   selector:
@@ -23,13 +23,13 @@ spec:
       labels:
         app: backend
         env: green
-        version: 1.0.2.1
+        version: 1.0.2.2
     spec:
       imagePullSecrets:
       - name: harbor-credentials
       containers:
       - name: backend
-        image: harbor.waldoserver.top/cloud/metrics-api:1.0.2.1
+        image: harbor.waldoserver.top/cloud/metrics-api:1.0.2.2
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 5000

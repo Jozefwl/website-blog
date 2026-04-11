@@ -80,8 +80,8 @@ CMD ["node", "server.js"]
 ```
 2. Build and push to registry
 ```bash
-docker build -t harbor.waldoserver.top/cloud/metrics-api:1.0.2.1 .
-docker push harbor.waldoserver.top/cloud/metrics-api:1.0.2.1
+docker build -t harbor.waldoserver.top/cloud/metrics-api:1.0.2.2 .
+docker push harbor.waldoserver.top/cloud/metrics-api:1.0.2.2
 ```
 
 3. Deploy to Kubernetes:
