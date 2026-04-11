@@ -80,7 +80,12 @@ CMD ["node", "server.js"]
 ```
 2. Build and push to registry
 ```bash
-docker build -t harbor.waldoserver.top/cloud/metrics-api:1.0.2.2 .
+docker-buildx build \
+  --platform=linux/amd64 \
+  -t harbor.waldoserver.top/cloud/metrics-api:1.0.2.2 \
+  --push \
+  .
+
 docker push harbor.waldoserver.top/cloud/metrics-api:1.0.2.2
 ```
 

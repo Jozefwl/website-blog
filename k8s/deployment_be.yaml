@@ -30,7 +30,7 @@ spec:
       containers:
       - name: backend
         image: harbor.waldoserver.top/cloud/metrics-api:1.0.2.2
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         ports:
         - containerPort: 5000
           protocol: TCP
