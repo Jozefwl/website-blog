@@ -1,18 +1,19 @@
 {
     "name": "backend-metrics",
-    "version": "1.0.2",
+    "version": "1.0.2.1",
     "main": "server.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "start": "node server.js",
-        "dev": "nodemon server.js"
+        "dev": "nodemon server.js",
+        "securityLibs": "npm audit fix --ignore-scripts && npm install axios@latest express@latest --ignore-scripts"
     },
     "keywords": [],
     "author": "",
     "license": "ISC",
     "description": "",
     "dependencies": {
-        "axios": "^1.13.6",
+        "axios": "^1.15.0",
         "express": "^5.2.1"
     },
     "devDependencies": {

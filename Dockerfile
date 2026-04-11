@@ -2,7 +2,7 @@
 FROM node:24-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci
+RUN npm ci --ignore-scripts
 COPY . .
 #Optional: disable source maps to shrink output
 

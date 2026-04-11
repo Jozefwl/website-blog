@@ -14,7 +14,8 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 ```
 docker-buildx build \
   --platform=linux/amd64 \
-  -t harbor.waldoserver.top/cloud/website-blog:0.2.5.1 \
+  --shm-size=512m \
+  -t harbor.waldoserver.top/cloud/website-blog:0.2.5.2 \
   --no-cache \
   .
 ```
