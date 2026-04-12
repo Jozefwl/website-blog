@@ -1,102 +1,84 @@
-# Prometheus Metrics API Server
 
-This Node.js server fetches CPU and memory utilization metrics from Prometheus and exposes them via a REST API. It's designed to run in a Kubernetes environment where Prometheus is deployed.
+# Prometheus Metrics Proxy API
+
+Simple Node.js/Express proxy fetches CPU \& memory metrics from Prometheus. CORS-enabled for browser use.
 
 ## Features
-- Fetches real-time CPU and memory metrics from Prometheus
-- Simple REST API with CORS support
-- Lightweight and container-ready
-- Error handling and logging
 
-## Requirements
-- Node.js 14+
-- Kubernetes cluster with Prometheus installed
-- `prometheus-prometheus-stack-kube-prom-prometheus` service in `monitoring` namespace
+- Fetch CPU usage (%): `100 - avg_idle_rate`
+- Fetch memory usage (%): `100 * (1 - MemAvailable/MemTotal)`
+- Logs client IP + User-Agent on `/metrics`
+- CORS `*` for frontend apps
+- Health check at `/`
 
-## Installation
-1. Clone the repository:
+
+## Quick Start
+
 ```bash
-git clone https://github.com/Jozefwl/prometheus-metrics-api.git
-cd prometheus-metrics-api
-```
-
-2. Install dependencies:
-```bash
-npm install express axios
-```
-
-## Configuration
-The server requires Prometheus to be accessible at:
-`http://prometheus-prometheus-stack-kube-prom-prometheus.monitoring.svc.cluster.local:9090`
-
-This is configured in `server.js`:
-```javascript
-const prometheusUrl = 'http://prometheus-prometheus-stack-kube-prom-prometheus.monitoring.svc.cluster.local:9090';
-```
-
-## Running the Server
-```bash
+npm init -y
+npm i express axios
 node server.js
 ```
 
-The server will run on port 5000 by default.
+Set env:
+
+```bash
+export PROMETHEUS_URL=http://your-prometheus:9090
+node server.js
+```
+
 
 ## API Endpoints
 
-### `GET /`
-- Returns welcome message
-- Response: `Welcome to the metrics API! Visit /metrics for CPU/MEMORY usage.`
+| Path | Method | Response |
+| :-- | :-- | :-- |
+| `/` | GET | `{"message": "Metrics server is running. Metrics API: Use /metrics endpoint"}` |
+| `/metrics` | GET | `{"cpu": [...Prometheus results...], "memory": [...Prometheus results...]}` |
 
-### `GET /metrics`
-- Returns CPU and memory utilization metrics
-- Example response:
-```json
-{
-  "cpu": [
-    {
-      "metric": {"instance": "node1:9100"},
-      "value": [1625097600, "25.5"]
-    }
-  ],
-  "memory": [
-    {
-      "metric": {"instance": "node1:9100"},
-      "value": [1625097600, "42.3"]
-    }
-  ]
-}
+## Prometheus Queries
+
+**CPU (% busy):**
+
+```
+100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m]))) * 100
 ```
 
-## Deployment in Kubernetes
-1. Build Docker image:
-```Dockerfile
-FROM node:14
+**Memory (% used):**
+
+```
+100 * (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes))
+```
+
+
+## Environment
+
+| Var | Required | Default | Description |
+| :-- | :-- | :-- | :-- |
+| `PROMETHEUS_URL` | ✅ | - | Prometheus API endpoint (ex: `http://prom:9090`) |
+
+## Docker
+
+```dockerfile
+FROM --platform=linux/amd64 node:24-alpine
 WORKDIR /app
 COPY package*.json ./
-RUN npm install
-COPY . .
+RUN npm ci --production
+COPY server.js .
 EXPOSE 5000
+ENV PROMETHEUS_URL=http://prometheus:9090
 CMD ["node", "server.js"]
 ```
-2. Build and push to registry
-```bash
-docker-buildx build \
-  --platform=linux/amd64 \
-  -t harbor.waldoserver.top/cloud/metrics-api:1.0.2.2 \
-  --push \
-  .
 
-docker push harbor.waldoserver.top/cloud/metrics-api:1.0.2.2
-```
 
-3. Deploy to Kubernetes:
+## Kubernetes Deployment Example
+
 ```yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: metrics-api
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: metrics-api
@@ -107,69 +89,13 @@ spec:
     spec:
       containers:
       - name: metrics-api
-        image: your-registry/metrics-api:latest
+        image: harbor.waldoserver.top/cloud/metrics-api:1.0.2.2
+        env:
+        - name: PROMETHEUS_URL
+          value: "http://prometheus.monitoring:9090"
         ports:
         - containerPort: 5000
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: metrics-api
-spec:
-  selector:
-    app: metrics-api
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 5000
-```
-
-4. Expose prometheus service to apps namespace
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: prometheus
-  namespace: apps
-spec:
-  type: ExternalName
-  externalName: prometheus-prometheus-stack-kube-prom-prometheus.monitoring.svc.cluster.local
-  ports:
-  - port: 9090
-```
-## Usage with Frontend
-The API is designed to work with the React frontend component included in the repository. The frontend displays CPU and memory usage in real-time.
-
-```jsx
-// Example React component using the API
-import React, { useEffect, useState } from 'react';
-import { CircularProgressbar } from 'react-circular-progressbar';
-
-function MetricsDashboard() {
-  const [cpu, setCpu] = useState(0);
-  const [memory, setMemory] = useState(0);
-
-  useEffect(() => {
-    const fetchMetrics = async () => {
-      const response = await fetch('/metrics');
-      const data = await response.json();
-      // Process metrics data here
-    };
-    fetchMetrics();
-    const interval = setInterval(fetchMetrics, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
-  return (
-    
-      
-      
-    
-  );
-}
-```
-
-## Troubleshooting
-- **Connection issues**: Verify Prometheus service name and namespace
-- **Empty responses**: Check Prometheus metrics availability
-- **CORS errors**: Ensure frontend and API share the same origin or configure CORS properly
+        resources:
+          requests:
+            cpu: 64m
+            memory: 64Mi
