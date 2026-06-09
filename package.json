@@ -1,6 +1,6 @@
 {
   "name": "website-blog",
-  "version": "0.2.5.2",
+  "version": "0.2.6.1",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -10,7 +10,7 @@
     "securityLibs": "npm audit fix --ignore-scripts && npm install next@latest react@latest react-circular-progressbar@latest react-dom@latest react-router@latest react-router-dom@latest --ignore-scripts"
   },
   "dependencies": {
-    "next": "^16.2.3",
+    "next": "^16.3.0-canary.46",  
     "react": "^19.2.5",
     "react-circular-progressbar": "^2.2.0",
     "react-dom": "^19.2.5",

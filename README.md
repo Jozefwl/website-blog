@@ -12,18 +12,18 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 ## Building
 
 ```
-docker-buildx build \
+docker buildx build \
   --platform=linux/amd64 \
   --shm-size=512m \
-  -t harbor.waldoserver.top/cloud/website-blog:0.2.5.2 \
+  -t harbor.waldoserver.top/cloud/website-blog:0.2.6.0 \
   --no-cache \
   .
 ```
 
 ```
-docker-buildx build \
+docker buildx build \
   --platform=linux/amd64 \
-  -t harbor.waldoserver.top/cloud/metrics-api:1.0.64 \
+  -t harbor.waldoserver.top/cloud/metrics-api:1.1.0 \
   --no-cache \
   .
 ```

@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 node:24.14.0-trixie-slim
+FROM --platform=linux/amd64 node:current-alpine
 
 WORKDIR /app
 
