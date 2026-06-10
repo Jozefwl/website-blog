@@ -6,7 +6,7 @@ metadata:
   labels:
     app: frontend
     env: green
-    version: 0.2.5.3
+    version: 0.2.6.1
 spec:
   replicas: 2
   selector:
