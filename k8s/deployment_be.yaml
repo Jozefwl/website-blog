@@ -23,13 +23,13 @@ spec:
       labels:
         app: backend
         env: green
-        version: 1.0.2.4
+        version: 1.1.1
     spec:
       imagePullSecrets:
       - name: harbor-credentials
       containers:
       - name: backend
-        image: harbor.waldoserver.top/cloud/metrics-api:1.0.2.4
+        image: harbor.waldoserver.top/cloud/metrics-api:1.1.1
         imagePullPolicy: Always
         ports:
         - containerPort: 5000
