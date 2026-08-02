@@ -48,9 +48,11 @@ jobs:
           yq -i ".spec.template.spec.containers[0].image = \"${{ env.BE_IMAGE }}:$BE\"" k8s/deployment_be.yaml
 
       - name: Log in to Harbor
-        run: |
-          echo "${{ secrets.HARBOR_PASSWORD }}" | \
-            docker login ${{ env.REGISTRY }} -u "${{ secrets.HARBOR_USERNAME }}" --password-stdin
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.HARBOR_USERNAME }}
+          password: ${{ secrets.HARBOR_PASSWORD }}
 
       - name: Build and push frontend
         run: |
