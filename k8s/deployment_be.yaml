@@ -39,6 +39,8 @@ spec:
               value: "http://monitoring-stack-kube-prom-prometheus.monitoring.svc.cluster.local:9090"
             - name: PROXY_IP
               value: "10.42.0.1"
+            - name: NODE_LABELS_JSON
+              value: '{"192.168.0.119":{"name":"MSi Server","cpuLabel":"i7-8750H CPU","memLabel":"16Gi RAM"},"192.168.0.136":{"name":"Toughbook CF-19","cpuLabel":"i5-3320M CPU","memLabel":"16Gi RAM"}}'
           resources:
             requests:
               cpu: 64m
