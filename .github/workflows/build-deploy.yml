@@ -34,6 +34,11 @@ jobs:
           npm version ${{ inputs.frontend_version }} --no-git-tag-version --allow-same-version
           npm version ${{ inputs.backend_version }} --no-git-tag-version --allow-same-version --prefix server
 
+      - name: Sync lockfiles
+        run: |
+          npm install --package-lock-only --ignore-scripts
+          npm install --package-lock-only --ignore-scripts --prefix server
+
       - name: Update k8s manifests
         run: |
           FE=${{ inputs.frontend_version }}
