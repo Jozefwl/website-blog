@@ -50,8 +50,8 @@ const CookieNotice = () => {
         <div style={{ flex: 1, minWidth: '300px' }}>
           <p style={{ margin: 0, fontSize: '14px', lineHeight: '1.4' }}>
             <strong>Disclaimer:</strong> This site uses cookies for basic functionality.
-            Meteoblue's cookies are used by the weather widget (by clicking Expand Weather), cloudflare collects metrics for website statistics (these can be blocked with adblock), some metrics I collect: the IP address and userAgent into ephemeral log storage (cached, not saved, deleted from RAM when metrics server is restarted) in such a way that it cannot be linked to any individuals (security purposes). 
-            <br></br>For implementation details see my github in the <a href="/contact">Contact page</a> or <a href="/links">Links page</a>.
+            Meteoblue's cookies are used by the weather widget (when you click Expand Weather), and Cloudflare collects analytics for website statistics (these can be blocked with an adblocker).
+            <br></br>For implementation details see my GitHub in the <a href="/contact">Contact page</a> or <a href="/links">Links page</a>.
           </p>
         </div>
         <button

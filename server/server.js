@@ -4,15 +4,32 @@ const app = express();
 const port = 5000;
 
 const prometheusUrl = process.env.PROMETHEUS_URL;
-//const proxyIp = process.env.PROXY_IP;
-
-const NODE_INFO = {
-  '192.168.0.119': { name: 'MSi Server', cpuLabel: 'i7-8750H CPU', memLabel: '16Gi RAM' },
-  '192.168.0.136': { name: 'Toughbook CF-19', cpuLabel: 'i5-3320M CPU', memLabel: '16Gi RAM' },
-};
+const NODE_INFO = parseNodeInfo(process.env.NODE_LABELS_JSON);
+const ALLOWED_ORIGINS = new Set([
+  'https://waldhauser.sk',
+  'https://www.waldhauser.sk',
+  ...(process.env.NODE_ENV !== 'production' ? ['http://localhost:3000'] : []),
+]);
+const RATE_LIMIT_WINDOW_MS = 60 * 1000;
+const RATE_LIMIT_MAX_REQUESTS = 60;
+const ipRateMap = new Map();
 
 const cpuQuery = '100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle",job="node-exporter"}[5m]))) * 100';
 const memQuery = '100 * (1 - (node_memory_MemAvailable_bytes{job="node-exporter"} / node_memory_MemTotal_bytes{job="node-exporter"}))';
+
+function parseNodeInfo(value) {
+  if (!value) {
+    return {};
+  }
+
+  try {
+    const parsed = JSON.parse(value);
+    return parsed && typeof parsed === 'object' ? parsed : {};
+  } catch (error) {
+    console.warn('NODE_LABELS_JSON is invalid JSON; using fallback labels.');
+    return {};
+  }
+}
 
 function getNodeInfo(instance) {
   const ip = instance?.split(':')[0];
@@ -62,31 +79,68 @@ async function fetchMetrics() {
       nodes: groupByInstance(cpuRes.data.data.result, memRes.data.data.result),
     };
   } catch (error) {
-    console.error('Error fetching metrics:', error.response?.data || error.message);
+    console.error(`Error fetching metrics: ${error.message}`);
     throw error;
   }
 }
 
-// CORS
+function setSecurityHeaders(res) {
+  res.header('X-Content-Type-Options', 'nosniff');
+  res.header('X-Frame-Options', 'SAMEORIGIN');
+  res.header('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.header('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+}
+
+function resolveClientIp(req) {
+  const forwarded = req.get('X-Forwarded-For');
+  if (forwarded) {
+    return forwarded.split(',')[0].trim();
+  }
+  return req.socket?.remoteAddress || req.ip || 'unknown';
+}
+
+function isRateLimited(ip) {
+  const now = Date.now();
+  const record = ipRateMap.get(ip);
+
+  if (!record || now - record.windowStart >= RATE_LIMIT_WINDOW_MS) {
+    ipRateMap.set(ip, { windowStart: now, count: 1 });
+    return false;
+  }
+
+  record.count += 1;
+  if (record.count > RATE_LIMIT_MAX_REQUESTS) {
+    return true;
+  }
+
+  return false;
+}
+
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
+  setSecurityHeaders(res);
+
+  const origin = req.get('Origin');
+  if (origin && ALLOWED_ORIGINS.has(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+    res.header('Vary', 'Origin');
+  }
+
   res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204);
+  }
+
   next();
 });
 
-app.set('trust proxy', true);
-
 app.get('/', (req, res) => res.json({message: "Metrics server is running. Metrics API: Use /metrics endpoint"}));
 app.get('/metrics', async (req, res) => {
-  const forwarded = req.get('X-Forwarded-For');
-  const clientIP = forwarded
-    ? forwarded.split(',')[0].trim()   // first IP is the real client
-    : req.ip;
-  
-    const userAgent = req.get('User-Agent') || 'unknown';
-
-  console.log(`GET metrics; IP: ${clientIP}, User-Agent: ${userAgent}`);
+  const clientIp = resolveClientIp(req);
+  if (isRateLimited(clientIp)) {
+    return res.status(429).json({ error: 'Too many requests' });
+  }
 
   try {
     res.json(await fetchMetrics());

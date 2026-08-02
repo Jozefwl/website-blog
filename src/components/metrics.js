@@ -4,12 +4,14 @@ import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import '../css/metrics.css';
 
+const METRICS_ENDPOINT = process.env.NEXT_PUBLIC_PROMETHEUS_URL || 'https://metrics.waldhauser.sk/metrics';
+
 const fetchMetrics = async () => {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 5000);
 
   try {
-    const response = await fetch('https://metrics.waldhauser.sk/metrics', {
+    const response = await fetch(METRICS_ENDPOINT, {
       signal: controller.signal,
     });
     clearTimeout(timeoutId);

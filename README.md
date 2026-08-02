@@ -7,49 +7,26 @@
 [![MongoDB](https://img.shields.io/badge/mongodb-47A248?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
 [![GitHub issues](https://img.shields.io/github/issues/Jozefwl/website-blog?style=for-the-badge)](https://github.com/Jozefwl/website-blog/issues)
 
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+## Short description
+Personal website built with a Next.js frontend and an Express backend for metrics.
 
-## Building
+## env variables
+`NEXT_PUBLIC_PROMETHEUS_URL`  
+`PROMETHEUS_URL`  
+`NODE_LABELS_JSON`
 
-```
-docker buildx build \
-  --platform=linux/amd64 \
-  --shm-size=512m \
-  -t harbor.waldoserver.top/cloud/website-blog:0.2.6.0 \
-  --no-cache \
-  .
-```
-
-```
-docker buildx build \
-  --platform=linux/amd64 \
-  -t harbor.waldoserver.top/cloud/metrics-api:1.1.0 \
-  --no-cache \
-  .
-```
-
-## Getting Started
-
-First, run the development server:
-
+## Build and push
+Frontend (linux x86_64):
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+docker buildx build --platform linux/amd64 -t harbor.waldoserver.top/cloud/website-blog:latest --push .
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Backend (linux x86_64):
+```bash
+docker buildx build --platform linux/amd64 -f server/Dockerfile -t harbor.waldoserver.top/cloud/metrics-api:latest --push server
+```
 
+## (C) Jozef Waldhauser
+Deployed at https://waldhauser.sk
 
-
-## Contributing
-
-pull requests plx
-
-## License
-
-This project is licensed under the MIT License.
+Feel free to use any pictures or content WHICH I OWN (excludes widgets)

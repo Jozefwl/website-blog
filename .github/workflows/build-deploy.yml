@@ -1,0 +1,67 @@
+name: Build and Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      frontend_version:
+        description: "Frontend version (package.json + k8s image tag)"
+        required: true
+      backend_version:
+        description: "Backend version (server/package.json + k8s image tag)"
+        required: true
+
+env:
+  REGISTRY: harbor.waldoserver.top
+  FE_IMAGE: harbor.waldoserver.top/cloud/website-blog
+  BE_IMAGE: harbor.waldoserver.top/cloud/metrics-api
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: [self-hosted, k8s]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Update package.json versions
+        run: |
+          npm version ${{ inputs.frontend_version }} --no-git-tag-version --allow-same-version
+          npm version ${{ inputs.backend_version }} --no-git-tag-version --allow-same-version --prefix server
+
+      - name: Update k8s manifests
+        run: |
+          FE=${{ inputs.frontend_version }}
+          BE=${{ inputs.backend_version }}
+
+          yq -i ".metadata.labels.version = \"$FE\"" k8s/deployment_fe.yaml
+          yq -i ".spec.template.metadata.labels.version = \"$FE\"" k8s/deployment_fe.yaml
+          yq -i ".spec.template.spec.containers[0].image = \"${{ env.FE_IMAGE }}:$FE\"" k8s/deployment_fe.yaml
+
+          yq -i ".metadata.labels.version = \"$BE\"" k8s/deployment_be.yaml
+          yq -i ".spec.template.metadata.labels.version = \"$BE\"" k8s/deployment_be.yaml
+          yq -i ".spec.template.spec.containers[0].image = \"${{ env.BE_IMAGE }}:$BE\"" k8s/deployment_be.yaml
+
+      - name: Log in to Harbor
+        run: |
+          echo "${{ secrets.HARBOR_PASSWORD }}" | \
+            docker login ${{ env.REGISTRY }} -u "${{ secrets.HARBOR_USERNAME }}" --password-stdin
+
+      - name: Build and push frontend
+        run: |
+          docker build --platform linux/amd64 -t ${{ env.FE_IMAGE }}:${{ inputs.frontend_version }} -f Dockerfile .
+          docker push ${{ env.FE_IMAGE }}:${{ inputs.frontend_version }}
+
+      - name: Build and push backend
+        run: |
+          docker build --platform linux/amd64 -t ${{ env.BE_IMAGE }}:${{ inputs.backend_version }} -f server/Dockerfile server/
+          docker push ${{ env.BE_IMAGE }}:${{ inputs.backend_version }}
+
+      - name: Commit and push for ArgoCD
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add package.json package-lock.json server/package.json server/package-lock.json k8s/deployment_fe.yaml k8s/deployment_be.yaml
+          git commit -m "GH Actions - Release FE ${{ inputs.frontend_version }}, Release BE ${{ inputs.backend_version }}"
+          git push
