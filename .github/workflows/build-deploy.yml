@@ -25,6 +25,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
       - name: Update package.json versions
         run: |
           npm version ${{ inputs.frontend_version }} --no-git-tag-version --allow-same-version
