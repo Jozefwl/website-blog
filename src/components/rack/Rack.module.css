@@ -1,0 +1,733 @@
+/*
+  3D server rack, CSS 3D transforms only (no WebGL), so it stays light on phones.
+
+  Real-world reference: a black 600 mm wide 19" server cabinet with perforated doors.
+  Sizes use the 19" rack standard (EIA-310):
+    1U = 44.45 mm, equipment panel = 482.6 mm wide incl. ears,
+    rail holes in sets of 3 per U, centred 6.35 / 22.25 / 38.1 mm from the top of each U,
+    panel height = n * 44.45 - 0.794 mm.
+  Everything is scaled by --mm (px per millimetre).
+
+  3D rule: every element between .scene and a 3D face keeps `transform-style: preserve-3d`
+  and must NOT use overflow:hidden, filter, or opacity < 1 (that flattens the 3D).
+*/
+
+/* ---------- Scene + scale ---------- */
+.scene {
+  --mm: min(1.3px, calc((100vw - 48px) / 600));
+  --u: calc(44.45 * var(--mm));
+  --gap: calc(0.794 * var(--mm));
+  --cab-w: calc(600 * var(--mm));
+  --panel-w: calc(482.6 * var(--mm));
+  --side: calc((var(--cab-w) - var(--panel-w)) / 2);
+  --ear-w: calc(16 * var(--mm));
+  --cab-depth: calc(640 * var(--mm));
+  --depth: calc(520 * var(--mm)); /* server chassis depth */
+
+  /* Materials: greyscale textures tinted by a colour underneath (multiply). */
+  --powder: url('/textures/powder-coat.webp');
+  --brushed: url('/textures/brushed-metal.webp');
+  --cab-color: #24272d; /* black powder coat after multiply */
+  --metal-color: #5b6271; /* dark anodised faceplate */
+  --ear-color: #8d95a5;
+
+  position: relative;
+  padding: 24px 0 72px;
+  perspective: 2000px;
+  perspective-origin: 50% -25%; /* camera slightly above the rack */
+}
+
+.cabinet {
+  position: relative;
+  width: var(--cab-w);
+  margin: 0 auto;
+  transform-style: preserve-3d;
+  transform: rotateX(4deg) rotateY(-16deg);
+  transition: transform 0.8s ease;
+}
+
+.scene:hover .cabinet {
+  transform: rotateX(4deg) rotateY(-12deg);
+}
+
+/* Generic 3D face. */
+.face {
+  position: absolute;
+  display: block;
+}
+
+/* ---------- Cabinet shell ---------- */
+.cabBack,
+.cabLeft,
+.cabRight,
+.cabTop,
+.cabBottom {
+  background-color: var(--cab-color);
+  background-image: var(--powder);
+  background-size: 256px;
+  background-blend-mode: multiply;
+}
+
+.cabBack {
+  inset: 0;
+  transform: translateZ(calc(-1 * var(--cab-depth)));
+  background-color: #0b0c0e;
+}
+
+/* Vertical power strip (PDU) on the back wall. */
+.pdu {
+  position: absolute;
+  right: calc(70 * var(--mm));
+  top: 12%;
+  bottom: 12%;
+  width: calc(56 * var(--mm));
+  border-radius: 3px;
+  background:
+    linear-gradient(#0b2a4a, #0b2a4a) 50% calc(14 * var(--mm)) / 70% calc(16 * var(--mm)) no-repeat,
+    repeating-linear-gradient(180deg, transparent 0 calc(30 * var(--mm)), #070708 calc(30 * var(--mm)) calc(44 * var(--mm))) 50% calc(50 * var(--mm)) / 46% 100% no-repeat,
+    #1b1d22;
+  box-shadow: 0 0 0 1px #000, inset 0 0 calc(10 * var(--mm)) rgba(70, 140, 255, 0.15);
+}
+
+.cabLeft,
+.cabRight {
+  top: 0;
+  bottom: 0;
+  width: var(--cab-depth);
+  border: 1px solid #000;
+}
+
+.cabLeft {
+  left: 0;
+  transform-origin: left center;
+  transform: rotateY(90deg);
+}
+
+.cabRight {
+  right: 0;
+  transform-origin: right center;
+  transform: rotateY(-90deg);
+  /* Light from the top-left: lit edge near the front. */
+  background-image:
+    linear-gradient(270deg, rgba(255, 255, 255, 0.07), transparent 25%, rgba(0, 0, 0, 0.35)),
+    var(--powder);
+  background-size: auto, 256px;
+  background-blend-mode: normal, multiply;
+}
+
+.cabTop,
+.cabBottom {
+  left: 0;
+  right: 0;
+  height: var(--cab-depth);
+  border: 1px solid #000;
+}
+
+.cabTop {
+  top: 0;
+  transform-origin: center top;
+  transform: rotateX(-90deg);
+  /* Roof with two cable-entry slots. */
+  background-image:
+    linear-gradient(#050506, #050506) 28% 35% / 18% 9% no-repeat,
+    linear-gradient(#050506, #050506) 72% 35% / 18% 9% no-repeat,
+    linear-gradient(180deg, rgba(255, 255, 255, 0.08), transparent 60%),
+    var(--powder);
+  background-size: 18% 9%, 18% 9%, auto, 256px;
+  background-blend-mode: normal, normal, normal, multiply;
+}
+
+.cabBottom {
+  bottom: 0;
+  transform-origin: center bottom;
+  transform: rotateX(90deg);
+  background-color: #060607;
+}
+
+/* Front door: steel frame + perforated mesh, open ~110° on the left hinge. */
+.door {
+  left: 0;
+  top: 0;
+  bottom: calc(60 * var(--mm));
+  width: var(--cab-w);
+  transform-origin: left center;
+  transform: rotateY(-112deg);
+  border: calc(34 * var(--mm)) solid #1a1c20;
+  border-radius: 4px;
+  background:
+    radial-gradient(circle, transparent 0 calc(1.9 * var(--mm)), #1a1c20 calc(2.3 * var(--mm))) 0 0 / calc(6 * var(--mm)) calc(5.2 * var(--mm));
+  box-shadow: inset 0 0 0 1px #000, 0 0 0 1px #000;
+}
+
+.doorHandle {
+  position: absolute;
+  right: calc(-24 * var(--mm));
+  top: 42%;
+  width: calc(14 * var(--mm));
+  height: calc(150 * var(--mm));
+  border-radius: 3px;
+  background: linear-gradient(90deg, #3c414b, #1e2126);
+  box-shadow: 0 0 0 1px #000;
+}
+
+.floorShadow {
+  position: absolute;
+  left: 50%;
+  bottom: 28px;
+  width: calc(var(--cab-w) * 1.25);
+  height: 70px;
+  transform: translateX(-50%);
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.85), transparent 70%);
+  pointer-events: none;
+}
+
+/* ---------- Front frame ---------- */
+.header,
+.plinth {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 var(--side);
+  background-color: var(--cab-color);
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(0, 0, 0, 0.3)), var(--powder);
+  background-size: auto, 256px;
+  background-blend-mode: normal, multiply;
+  border: 1px solid #000;
+  transform: translateZ(1px);
+}
+
+.header {
+  height: calc(46 * var(--mm));
+  border-radius: 4px 4px 0 0;
+}
+
+.plinth {
+  height: calc(60 * var(--mm));
+  border-radius: 0 0 4px 4px;
+  padding: 0 calc(10 * var(--mm));
+}
+
+.brand {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: 0.3em;
+  font-size: max(0.6rem, calc(11 * var(--mm)));
+  color: #c9ced8;
+}
+
+.statusText,
+.serial {
+  font-family: var(--font-mono);
+  font-size: max(0.6rem, calc(9.5 * var(--mm)));
+  color: var(--text-muted);
+}
+
+.serial {
+  padding: 1px 6px;
+  background: #d9d9d9;
+  color: #222;
+  border-radius: 2px;
+}
+
+/* Levelling feet. */
+.foot {
+  align-self: flex-end;
+  width: calc(46 * var(--mm));
+  height: calc(16 * var(--mm));
+  margin-bottom: calc(-16 * var(--mm));
+  background: linear-gradient(180deg, #2a2d33, #0c0d0f);
+  clip-path: polygon(18% 0, 82% 0, 100% 100%, 0 100%);
+}
+
+.frame {
+  position: relative;
+  padding: 0 var(--side);
+  transform-style: preserve-3d;
+}
+
+.sideBar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: var(--side);
+  display: flex;
+  flex-direction: column;
+  background-color: var(--cab-color);
+  background-image: linear-gradient(90deg, rgba(255, 255, 255, 0.05), rgba(0, 0, 0, 0.25)), var(--powder);
+  background-size: auto, 256px;
+  background-blend-mode: normal, multiply;
+  border-inline: 1px solid #000;
+  transform: translateZ(1px);
+}
+
+.sideBarLeft {
+  left: 0;
+  align-items: flex-end;
+}
+
+.sideBarRight {
+  right: 0;
+  align-items: flex-start;
+}
+
+/* Printed U numbers, one per rack unit. */
+.uNumber {
+  height: var(--u);
+  display: flex;
+  align-items: center;
+  padding: 0 calc(6 * var(--mm));
+  font-family: var(--font-mono);
+  font-size: max(0.5rem, calc(8 * var(--mm)));
+  color: #8a909c;
+}
+
+/* Square-hole rails behind the ears: 3 holes per U, ~9.5 mm square (typical size). */
+.rail {
+  --hole: calc(9.5 * var(--mm));
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: calc(17 * var(--mm));
+  background-image:
+    linear-gradient(180deg, #030303 0 var(--hole), transparent var(--hole)),
+    linear-gradient(180deg, #030303 0 var(--hole), transparent var(--hole)),
+    linear-gradient(180deg, #030303 0 var(--hole), transparent var(--hole)),
+    linear-gradient(90deg, #5d6370, #40454f);
+  /* hole centres at 6.35 / 22.25 / 38.1 mm from the top of each U */
+  background-position:
+    50% calc(1.6 * var(--mm)),
+    50% calc(17.5 * var(--mm)),
+    50% calc(33.35 * var(--mm)),
+    0 0;
+  background-size: var(--hole) var(--u), var(--hole) var(--u), var(--hole) var(--u), auto;
+  background-repeat: repeat-y, repeat-y, repeat-y, no-repeat;
+  transform: translateZ(-2px);
+}
+
+.railLeft {
+  left: var(--side);
+}
+
+.railRight {
+  right: var(--side);
+}
+
+/* Equipment bay: devices stacked top to bottom. */
+.bay {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  padding-bottom: var(--gap);
+  transform-style: preserve-3d;
+}
+
+/* ---------- One device: slot -> drawer -> (chassis + faceplate) ---------- */
+.u1 {
+  --n: 1;
+}
+
+.u2 {
+  --n: 2;
+}
+
+.u3 {
+  --n: 3;
+}
+
+.u4 {
+  --n: 4;
+}
+
+.slot {
+  position: relative;
+  display: flex;
+  min-height: calc(var(--n) * var(--u) - var(--gap));
+  transform-style: preserve-3d;
+}
+
+.drawer,
+.hoverLift {
+  position: relative;
+  flex: 1;
+  display: flex;
+  transform-style: preserve-3d;
+}
+
+.hoverLift {
+  transition: transform 0.25s ease;
+}
+
+.slot:hover .hoverLift,
+.slot:focus-within .hoverLift,
+.slot[data-opening] .hoverLift {
+  transform: translateZ(calc(10 * var(--mm)));
+}
+
+/* Server body behind the faceplate (450 mm wide: narrower than the ears). */
+.chassis {
+  position: absolute;
+  inset: 0 var(--ear-w);
+  transform-style: preserve-3d;
+  pointer-events: none;
+}
+
+.chassisTop,
+.chassisBottom {
+  left: 0;
+  right: 0;
+  height: var(--depth);
+}
+
+.chassisTop {
+  top: 0;
+  transform-origin: center top;
+  transform: rotateX(-90deg);
+  background-color: #8a909c;
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(0, 0, 0, 0.45)),
+    var(--brushed);
+  background-size: auto, 256px;
+  background-blend-mode: normal, multiply;
+  border: 1px solid #000;
+}
+
+.chassisBottom {
+  bottom: 0;
+  transform-origin: center bottom;
+  transform: rotateX(90deg);
+  background: #0e1014;
+}
+
+.chassisLeft,
+.chassisRight {
+  top: 0;
+  bottom: 0;
+  width: var(--depth);
+  background: linear-gradient(90deg, #3a3f49, #1b1e24);
+  border: 1px solid #000;
+}
+
+.chassisLeft {
+  left: 0;
+  transform-origin: left center;
+  transform: rotateY(90deg);
+}
+
+.chassisRight {
+  right: 0;
+  transform-origin: right center;
+  transform: rotateY(-90deg);
+}
+
+.chassisBack {
+  inset: 0;
+  transform: translateZ(calc(-1 * var(--depth)));
+  background: #0b0d12;
+}
+
+/* Service label on the lid, readable when the server slides out. */
+.sticker {
+  position: absolute;
+  top: calc(60 * var(--mm));
+  left: calc(30 * var(--mm));
+  padding: 1px 6px;
+  font-family: var(--font-mono);
+  font-size: max(0.55rem, calc(9 * var(--mm)));
+  color: #222;
+  background: #ececec;
+  border-radius: 2px;
+}
+
+/* ---------- Faceplate (front of every device) ---------- */
+.faceplate {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: stretch;
+  color: var(--text);
+  text-decoration: none;
+  background-color: var(--metal-color);
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1), transparent 35%, rgba(0, 0, 0, 0.35)),
+    var(--brushed);
+  background-size: auto, 256px;
+  background-blend-mode: normal, multiply;
+  border: 1px solid #000;
+  border-radius: 2px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  transform: translateZ(1px);
+}
+
+/* Mounting ear with a knurled thumbscrew. */
+.ear {
+  position: relative;
+  flex: none;
+  width: var(--ear-w);
+  background-color: var(--ear-color);
+  background-image:
+    linear-gradient(90deg, rgba(0, 0, 0, 0.35), rgba(255, 255, 255, 0.15) 40%, rgba(0, 0, 0, 0.25)),
+    var(--brushed);
+  background-size: auto, 256px;
+  background-blend-mode: normal, multiply;
+}
+
+.ear:first-child {
+  border-right: 1px solid rgba(0, 0, 0, 0.7);
+}
+
+.ear:last-child {
+  border-left: 1px solid rgba(0, 0, 0, 0.7);
+}
+
+.screw {
+  position: absolute;
+  left: 50%;
+  top: calc(22.25 * var(--mm)); /* middle hole of the top U */
+  width: calc(9 * var(--mm));
+  height: calc(9 * var(--mm));
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background:
+    linear-gradient(90deg, transparent 44%, #2a2d33 44% 56%, transparent 56%),
+    repeating-conic-gradient(#c8ced8 0 10deg, #8a919d 10deg 20deg);
+  box-shadow: 0 0 0 1px #1b1d22, 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+/* Blank filler panel with stamped vent slots. */
+.panelBody {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(4 * var(--mm)) calc(10 * var(--mm));
+  min-width: 0;
+}
+
+.blank,
+.brush {
+  background-color: var(--cab-color);
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(0, 0, 0, 0.3)), var(--powder);
+  background-size: auto, 256px;
+}
+
+.ventSlots {
+  width: 70%;
+  height: 40%;
+  background: repeating-linear-gradient(90deg, #050506 0 calc(5 * var(--mm)), transparent calc(5 * var(--mm)) calc(11 * var(--mm)));
+  border-radius: 2px;
+}
+
+/* Cable pass-through with brush strip. */
+.brushStrip {
+  width: 86%;
+  height: 46%;
+  border-radius: calc(4 * var(--mm));
+  background:
+    linear-gradient(180deg, transparent 47%, #000 47% 53%, transparent 53%),
+    repeating-linear-gradient(90deg, #1d1f23 0 1px, #0c0d0f 1px 2px);
+  box-shadow: inset 0 0 0 1px #000;
+}
+
+/* Recessed display window for console / appliance units. */
+.screen {
+  width: 100%;
+  padding: calc(5 * var(--mm)) calc(12 * var(--mm));
+  background: linear-gradient(180deg, #0c0e13, #12151c);
+  border: 1px solid #000;
+  border-radius: 3px;
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+/* ---------- 1U server ---------- */
+.clickable {
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.clickable:hover,
+.clickable:focus-visible,
+.clickable[data-opening] {
+  border-color: var(--accent);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    0 0 0 1px var(--accent),
+    0 0 24px rgba(79, 124, 255, 0.3);
+}
+
+.bezel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: calc(10 * var(--mm));
+  padding: 0 calc(8 * var(--mm));
+  min-width: 0;
+}
+
+.controls {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: calc(4 * var(--mm));
+}
+
+.powerButton {
+  width: calc(9 * var(--mm));
+  height: calc(9 * var(--mm));
+  border-radius: 50%;
+  background: radial-gradient(circle, #1a1d22 0 45%, #4ea1ff 50% 62%, #1a1d22 66%);
+  box-shadow: 0 0 6px rgba(78, 161, 255, 0.7), 0 0 0 1px #000;
+}
+
+.pullTag {
+  font-family: var(--font-mono);
+  font-size: max(0.5rem, calc(7.5 * var(--mm)));
+  line-height: 1;
+  padding: 1px 3px;
+  color: #222;
+  background: #d8dbe0;
+  border-radius: 1px;
+}
+
+.label {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  width: calc(130 * var(--mm));
+  flex: none;
+}
+
+.unitTitle {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: max(0.75rem, calc(13 * var(--mm)));
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #f1f3f7;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.6);
+}
+
+.caption {
+  font-family: var(--font-mono);
+  font-size: max(0.55rem, calc(8.5 * var(--mm)));
+  color: #aab1be;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 2.5" hot-swap drive caddies; each monitor gets one, with its status LED. */
+.bays {
+  flex: none;
+  display: flex;
+  gap: calc(1.4 * var(--mm));
+  padding: calc(1.5 * var(--mm));
+  background: #0a0b0d;
+  border-radius: 2px;
+}
+
+.caddy {
+  position: relative;
+  width: calc(17 * var(--mm));
+  height: calc(35 * var(--mm));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: calc(2 * var(--mm));
+  padding-bottom: calc(3 * var(--mm));
+  background: linear-gradient(180deg, #2b2f37, #1a1d23);
+  border-radius: 1px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.8);
+}
+
+.caddyBlank {
+  background: repeating-linear-gradient(180deg, #1c1f25 0 calc(2 * var(--mm)), #121418 calc(2 * var(--mm)) calc(4 * var(--mm)));
+}
+
+.latch {
+  position: absolute;
+  top: calc(2.5 * var(--mm));
+  left: 18%;
+  right: 18%;
+  height: calc(5 * var(--mm));
+  border-radius: 1px;
+  background: linear-gradient(180deg, #6c7380, #3c414b);
+}
+
+.bayLabel {
+  font-family: var(--font-mono);
+  font-size: max(0.42rem, calc(5.5 * var(--mm)));
+  line-height: 1;
+  color: #a7aebb;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  max-height: calc(18 * var(--mm));
+  overflow: hidden;
+}
+
+/* Honeycomb air intake. */
+.grille {
+  flex: 1;
+  align-self: stretch;
+  min-width: calc(20 * var(--mm));
+  margin: calc(5 * var(--mm)) 0;
+  border-radius: 2px;
+  background:
+    radial-gradient(circle, #050506 0 calc(1.6 * var(--mm)), transparent calc(2 * var(--mm))) 0 0 / calc(5 * var(--mm)) calc(4.4 * var(--mm)),
+    radial-gradient(circle, #050506 0 calc(1.6 * var(--mm)), transparent calc(2 * var(--mm))) calc(2.5 * var(--mm)) calc(2.2 * var(--mm)) / calc(5 * var(--mm)) calc(4.4 * var(--mm)),
+    #2a2e36;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.6);
+}
+
+/* ---------- Phones: no door, bigger servers (2U) so text stays readable ---------- */
+@media (max-width: 600px) {
+  .scene {
+    --mm: calc((100vw - 24px) / 600);
+    perspective: 1400px;
+    padding-bottom: 56px;
+  }
+
+  .cabinet,
+  .scene:hover .cabinet {
+    transform: rotateX(3deg) rotateY(-7deg);
+  }
+
+  .door,
+  .uNumber,
+  .caption,
+  .caddyBlank,
+  .grille,
+  .pdu {
+    display: none;
+  }
+
+  .serverSlot {
+    --n: 2;
+  }
+
+  .caddy {
+    width: calc(26 * var(--mm));
+    height: calc(70 * var(--mm));
+  }
+
+  .label {
+    width: auto;
+    flex: 1;
+  }
+
+  .bezel {
+    gap: 6px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cabinet,
+  .scene:hover .cabinet,
+  .hoverLift {
+    transition: none;
+  }
+}

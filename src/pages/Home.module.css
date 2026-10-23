@@ -1,0 +1,18 @@
+.home {
+  max-width: 820px;
+  margin: 0 auto;
+}
+
+.hint {
+  margin: -0.5rem 0 1.5rem;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* The 3D rack can project past the page edge; clip sideways only (outside the 3D context). */
+.home {
+  overflow-x: clip;
+  padding-inline: 8px;
+}

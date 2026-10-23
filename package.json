@@ -1,30 +1,33 @@
 {
   "name": "website-blog",
-  "version": "0.3.2",
+  "version": "1.0.0",
   "private": true,
+  "type": "module",
+  "author": "Jozef Waldhauser",
+  "engines": {
+    "node": ">=24.15.0"
+  },
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start -H 0.0.0.0",
-    "lint": "next lint",
-    "securityLibs": "npm audit fix --ignore-scripts && npm install next@latest react@latest react-circular-progressbar@latest react-dom@latest --ignore-scripts"
+    "dev": "vite",
+    "build": "vite build",
+    "start": "node serve.mjs",
+    "preview": "vite build && node serve.mjs",
+    "test": "vitest run && node --test \"test/*.test.mjs\"",
+    "securityLibs": "npm audit fix --ignore-scripts"
   },
   "dependencies": {
-    "next": "^16.3.3",
-    "react": "^19.2.5",
-    "react-circular-progressbar": "^2.2.0",
-    "react-dom": "^19.2.5"
+    "motion": "14.6.0",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "react-router": "8.5.0"
   },
   "devDependencies": {
-    "eslint": "^9",
-    "eslint-config-next": "16.3.3",
-    "postcss": "^8.5.26",
-    "tailwindcss": "^3.4.1"
-  },
-  "overrides": {
-    "@babel/core": "7.29.7",
-    "brace-expansion@1": "1.1.18",
-    "brace-expansion@5": "5.0.9",
-    "js-yaml": "4.3.1"
+    "@testing-library/jest-dom": "7.0.1",
+    "@testing-library/react": "16.3.3",
+    "@testing-library/user-event": "14.6.8",
+    "@vitejs/plugin-react": "6.1.2",
+    "jsdom": "30.1.3",
+    "vite": "8.3.5",
+    "vitest": "5.0.5"
   }
 }

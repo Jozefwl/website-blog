@@ -1,30 +1,17 @@
-# docker build -t harbor.fabrikanazemiaky.eu/cloud/website-blog:0.1.2 --no-cache 
+# Build: Vite bundles the React app into static files in dist/.
 FROM node:24-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci --ignore-scripts
 COPY . .
-#Optional: disable source maps to shrink output
+RUN npm run build && npm test
 
-ENV NEXT_DISABLE_SOURCEMAPS=1
-ENV NODE_ENV=production
-RUN npm run build
-#Runtime: tiny image; no node_modules copied directly
-
+# Run: Chainguard node (distroless, non-root). Only dist/ + a zero-dependency server, no node_modules.
 FROM cgr.dev/chainguard/node:latest AS runner
-#For alpine alternative: use node:24-alpine and add a non-root user; distroless is smaller.
-
 WORKDIR /app
-#Copy the minimal standalone server and assets
-
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/public ./public
-#Distroless runs as nonroot by default; port exposure is metadata only
-
-EXPOSE 3000
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/serve.mjs ./serve.mjs
 ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED=1
-#Distroless requires absolute entrypoint; Next’s standalone server lives at server.js under the .next/standalone root
-
-CMD ["/app/server.js"]
+EXPOSE 3000
+# Chainguard's entrypoint is /usr/bin/node, so CMD is just the script.
+CMD ["/app/serve.mjs"]

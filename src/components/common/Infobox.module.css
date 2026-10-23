@@ -1,0 +1,16 @@
+.box {
+  background: linear-gradient(180deg, var(--surface-2), var(--surface));
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px 28px;
+}
+
+.title {
+  font-size: 1.25rem;
+  color: #93b4ff;
+}
+
+.paragraph {
+  margin: 0.75rem 0 0;
+  font-size: 1.05rem;
+}
