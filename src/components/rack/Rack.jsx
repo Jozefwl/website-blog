@@ -27,11 +27,6 @@ export function RackView({ summary, statusError }) {
         <span className={`${styles.face} ${styles.cabTop}`} aria-hidden="true" />
         <span className={`${styles.face} ${styles.cabBottom}`} aria-hidden="true" />
 
-        {/* Perforated front door, swung open on its left hinge. */}
-        <span className={`${styles.face} ${styles.door}`} aria-hidden="true">
-          <span className={styles.doorHandle} />
-        </span>
-
         <div className={styles.header}>
           <span className={styles.brand}>WALDHAUSER.SK</span>
           <span className={styles.statusText} role="status">

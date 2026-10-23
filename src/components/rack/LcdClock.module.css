@@ -3,10 +3,17 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  flex-wrap: wrap;
+}
+
+/* Phones: title above the LCD. */
+@media (max-width: 600px) {
+  .panel {
+    flex-wrap: wrap;
+  }
 }
 
 .title {
+  min-width: 0;
   font-family: var(--font-display);
   font-size: 0.8rem;
   letter-spacing: 0.08em;
@@ -15,8 +22,8 @@
 }
 
 .lcd {
-  flex: 1;
-  min-width: 240px;
+  flex: 0 1 290px;
+  min-width: 0;
   max-width: 380px;
   padding: 8px 12px;
   background: var(--lcd-bg);
@@ -24,14 +31,12 @@
   border-radius: 4px;
   box-shadow: inset 0 0 12px rgba(109, 255, 160, 0.15);
   font-family: var(--font-mono);
-  font-size: 0.78rem;
+  font-size: clamp(0.62rem, 2.6vw, 0.74rem);
   color: var(--lcd-text);
   text-shadow: 0 0 6px rgba(109, 255, 160, 0.6);
 }
 
 .line {
   margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow-wrap: anywhere; /* wrap on narrow screens instead of cutting text */
 }

@@ -11,7 +11,7 @@ export default function RackPanel({ u = 1, variant = 'blank', children }) {
     <div className={`${styles.slot} ${styles[`u${u}`]}`}>
       <div className={styles.drawer}>
         {hasBody && <ChassisBox />}
-        <div className={`${styles.faceplate} ${styles[variant]}`}>
+        <div className={`${styles.faceplate} ${styles[variant] ?? ''}`}>
           <RackEar />
           <div className={styles.panelBody}>
             {variant === 'blank' && <span className={styles.ventSlots} aria-hidden="true" />}

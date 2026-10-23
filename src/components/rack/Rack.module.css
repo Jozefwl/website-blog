@@ -14,7 +14,8 @@
 
 /* ---------- Scene + scale ---------- */
 .scene {
-  --mm: min(1.3px, calc((100vw - 48px) / 600));
+  /* Scale so the *projected* 3D width fits: the tilt adds ~12% (side panel comes forward). */
+  --mm: min(1.25px, calc((100vw - 40px) / (600 * 1.14)));
   --u: calc(44.45 * var(--mm));
   --gap: calc(0.794 * var(--mm));
   --cab-w: calc(600 * var(--mm));
@@ -33,7 +34,7 @@
 
   position: relative;
   padding: 24px 0 72px;
-  perspective: 2000px;
+  perspective: calc(1600 * var(--mm)); /* scales with the rack -> same look on every screen */
   perspective-origin: 50% -25%; /* camera slightly above the rack */
 }
 
@@ -41,6 +42,8 @@
   position: relative;
   width: var(--cab-w);
   margin: 0 auto;
+  /* Nudge left: the tilted right side panel projects further than the left. */
+  left: calc(-42 * var(--mm));
   transform-style: preserve-3d;
   transform: rotateX(4deg) rotateY(-16deg);
   transition: transform 0.8s ease;
@@ -144,37 +147,11 @@
   background-color: #060607;
 }
 
-/* Front door: steel frame + perforated mesh, open ~110° on the left hinge. */
-.door {
-  left: 0;
-  top: 0;
-  bottom: calc(60 * var(--mm));
-  width: var(--cab-w);
-  transform-origin: left center;
-  transform: rotateY(-112deg);
-  border: calc(34 * var(--mm)) solid #1a1c20;
-  border-radius: 4px;
-  background:
-    radial-gradient(circle, transparent 0 calc(1.9 * var(--mm)), #1a1c20 calc(2.3 * var(--mm))) 0 0 / calc(6 * var(--mm)) calc(5.2 * var(--mm));
-  box-shadow: inset 0 0 0 1px #000, 0 0 0 1px #000;
-}
-
-.doorHandle {
-  position: absolute;
-  right: calc(-24 * var(--mm));
-  top: 42%;
-  width: calc(14 * var(--mm));
-  height: calc(150 * var(--mm));
-  border-radius: 3px;
-  background: linear-gradient(90deg, #3c414b, #1e2126);
-  box-shadow: 0 0 0 1px #000;
-}
-
 .floorShadow {
   position: absolute;
   left: 50%;
   bottom: 28px;
-  width: calc(var(--cab-w) * 1.25);
+  width: var(--cab-w);
   height: 70px;
   transform: translateX(-50%);
   background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.85), transparent 70%);
@@ -344,6 +321,7 @@
 .slot {
   position: relative;
   display: flex;
+  min-width: 0; /* content must never widen a rack unit */
   min-height: calc(var(--n) * var(--u) - var(--gap));
   transform-style: preserve-3d;
 }
@@ -352,6 +330,7 @@
 .hoverLift {
   position: relative;
   flex: 1;
+  min-width: 0;
   display: flex;
   transform-style: preserve-3d;
 }
@@ -439,12 +418,14 @@
   color: #222;
   background: #ececec;
   border-radius: 2px;
+  transform: scaleY(-1); /* the lid is seen from its back side, so un-mirror the text */
 }
 
 /* ---------- Faceplate (front of every device) ---------- */
 .faceplate {
   position: relative;
   flex: 1;
+  min-width: 0;
   display: flex;
   align-items: stretch;
   color: var(--text);
@@ -534,6 +515,8 @@
 /* Recessed display window for console / appliance units. */
 .screen {
   width: 100%;
+  min-width: 0;
+  overflow: hidden; /* fine here: .screen is a flat leaf, not part of the 3D chain */
   padding: calc(5 * var(--mm)) calc(12 * var(--mm));
   background: linear-gradient(180deg, #0c0e13, #12151c);
   border: 1px solid #000;
@@ -686,8 +669,7 @@
 /* ---------- Phones: no door, bigger servers (2U) so text stays readable ---------- */
 @media (max-width: 600px) {
   .scene {
-    --mm: calc((100vw - 24px) / 600);
-    perspective: 1400px;
+    --mm: calc((100vw - 40px) / (600 * 1.12));
     padding-bottom: 56px;
   }
 
@@ -696,7 +678,10 @@
     transform: rotateX(3deg) rotateY(-7deg);
   }
 
-  .door,
+  .cabinet {
+    left: calc(13 * var(--mm)); /* less tilt: a sliding server pokes out left more than the side panel does right */
+  }
+
   .uNumber,
   .caption,
   .caddyBlank,
