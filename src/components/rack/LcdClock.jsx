@@ -19,7 +19,7 @@ export default function LcdClock() {
   const now = useNow(50);
   return (
     <div className={styles.panel}>
-      <span className={styles.title}>Welcome to Jozef&apos;s website</span>
+      <span className={styles.title}>MAIN SERVER RACK</span>
       <LcdDisplay now={now} />
     </div>
   );

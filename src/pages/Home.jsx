@@ -7,7 +7,7 @@ export default function Home() {
   return (
     <div className={styles.home}>
       <AnimatedText text="waldhauser.sk" />
-      <p className={styles.hint}>Pick a unit to pull it out.</p>
+      <p className={styles.hint}>Jozef Waldhauser's personal website.</p>
       <Rack />
       <WeatherWidget />
     </div>

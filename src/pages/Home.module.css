@@ -10,3 +10,9 @@
   font-size: 0.85rem;
   color: var(--text-muted);
 }
+
+/* The 3D rack can project past the page edge; clip sideways only (outside the 3D context). */
+.home {
+  overflow-x: clip;
+  padding-inline: 8px;
+}
