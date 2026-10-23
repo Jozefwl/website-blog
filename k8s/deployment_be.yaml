@@ -40,7 +40,8 @@ spec:
             - name: PROXY_IP
               value: "10.42.0.1"
             - name: UPTIME_KUMA_URL
-              value: "https://monitoring.waldoserver.top"
+              # In-cluster Service (same namespace); the public URL is not reachable from pods.
+              value: "http://maintenance.apps.svc.cluster.local"
             - name: UPTIME_KUMA_SLUG
               value: "waldhauser-services"
             - name: NODE_LABELS_JSON
