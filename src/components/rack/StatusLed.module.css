@@ -1,0 +1,38 @@
+.led {
+  --led: var(--led-unknown);
+  display: inline-block;
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, rgba(255, 255, 255, 0.7), transparent 45%), var(--led);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6);
+}
+
+.led[data-status='up'] {
+  --led: var(--led-up);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6), 0 0 8px var(--led);
+  animation: blink 2.4s ease-in-out infinite;
+}
+
+.led[data-status='down'] {
+  --led: var(--led-down);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6), 0 0 10px var(--led);
+}
+
+.led[data-status='pending'] {
+  --led: var(--led-pending);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6), 0 0 8px var(--led);
+  animation: blink 0.8s steps(2) infinite;
+}
+
+.led[data-status='maintenance'] {
+  --led: var(--led-maintenance);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.6), 0 0 8px var(--led);
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0.55;
+  }
+}

@@ -1,0 +1,61 @@
+.info {
+  text-align: center;
+}
+
+.email {
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+}
+
+.formBox {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 24px 28px;
+  background: linear-gradient(180deg, var(--surface-2), var(--surface));
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form label {
+  margin-top: 8px;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+}
+
+.form input,
+.form textarea {
+  font: inherit;
+  padding: 10px 12px;
+  color: var(--text);
+  background: var(--steel-900);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.form input:focus,
+.form textarea:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
+.form button {
+  margin-top: 16px;
+  padding: 10px;
+  font: inherit;
+  font-family: var(--font-display);
+  color: #fff;
+  background: var(--navy);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.form button:hover {
+  background: rgb(0, 0, 110);
+}
