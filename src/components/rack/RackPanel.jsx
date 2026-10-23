@@ -1,16 +1,24 @@
 import ChassisBox from './ChassisBox.jsx';
+import RackEar from './RackEar.jsx';
 import styles from './Rack.module.css';
 
-// Static (non-clickable) rack device: faceplate with mounting ears, plus a 3D body.
-export default function RackPanel({ size = 1, children, className = '' }) {
+// Non-clickable rack equipment.
+// variant: 'blank' (vented filler), 'brush' (cable pass-through), 'console' (LCD), 'appliance' (screen).
+export default function RackPanel({ u = 1, variant = 'blank', children }) {
+  const hasBody = variant === 'console' || variant === 'appliance';
+
   return (
-    <div className={`${styles.slot} ${styles[`u${size}`]}`}>
+    <div className={`${styles.slot} ${styles[`u${u}`]}`}>
       <div className={styles.drawer}>
-        <ChassisBox />
-        <div className={`${styles.faceplate} ${className}`}>
-          <span className={styles.ear} aria-hidden="true" />
-          <div className={styles.body}>{children}</div>
-          <span className={styles.ear} aria-hidden="true" />
+        {hasBody && <ChassisBox />}
+        <div className={`${styles.faceplate} ${styles[variant]}`}>
+          <RackEar />
+          <div className={styles.panelBody}>
+            {variant === 'blank' && <span className={styles.ventSlots} aria-hidden="true" />}
+            {variant === 'brush' && <span className={styles.brushStrip} aria-hidden="true" />}
+            {hasBody && <div className={styles.screen}>{children}</div>}
+          </div>
+          <RackEar />
         </div>
       </div>
     </div>

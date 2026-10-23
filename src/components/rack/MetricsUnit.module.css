@@ -1,7 +1,7 @@
 .panel {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
 }
 
 .title {
@@ -22,14 +22,14 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 24px;
+  gap: 16px;
 }
 
 .node {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 10px 14px;
+  padding: 6px 12px;
   background: rgba(0, 0, 0, 0.35);
   border: 1px solid #000;
   border-radius: var(--radius-sm);
@@ -37,7 +37,7 @@
 
 .name {
   font-size: 0.8rem;
-  margin: 0 0 8px;
+  margin: 0 0 4px;
 }
 
 .gauges {
