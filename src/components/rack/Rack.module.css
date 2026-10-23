@@ -670,7 +670,10 @@
 @media (max-width: 600px) {
   .scene {
     --mm: calc((100vw - 40px) / (600 * 1.12));
-    padding-bottom: 56px;
+    padding: 40px 0 56px; /* more room above the rack */
+    /* Tall rack on a narrow screen: camera further away and lower, so it doesn't look tipped forward. */
+    perspective: calc(2300 * var(--mm));
+    perspective-origin: 50% -8%;
   }
 
   .cabinet,
