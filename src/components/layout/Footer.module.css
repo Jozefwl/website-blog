@@ -1,0 +1,46 @@
+/* Thin rack-style strip at the very bottom of every page. */
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  max-width: var(--page-width);
+  margin: 0 auto;
+  padding: 18px var(--gutter) 28px;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
+}
+
+.switch {
+  display: inline-flex;
+  padding: 2px;
+  border: 1px solid var(--steel-400);
+  border-radius: 6px;
+  background: linear-gradient(180deg, var(--steel-700), var(--steel-800));
+}
+
+.option {
+  min-width: 2.6rem;
+  padding: 4px 10px;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  background: transparent;
+  border: 0;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.option[aria-pressed='true'] {
+  color: var(--text);
+  background: var(--accent-soft);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.option:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

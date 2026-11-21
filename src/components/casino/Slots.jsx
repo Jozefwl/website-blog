@@ -2,15 +2,16 @@ import { useEffect, useRef, useState } from 'react';
 import { useReducedMotion } from 'motion/react';
 import { SLOT_PAYTABLE, SLOT_SYMBOLS, slotPayout, spinReels } from '../../lib/casino/slots.js';
 import BetField, { toBet } from './BetField.jsx';
+import { useLang } from '../../i18n/LanguageContext.jsx';
 import styles from './casino.module.css';
 
 export const SYMBOL_LOOK = {
-  cpu: { glyph: '▣', label: 'CPU', color: '#4f7cff' },
-  ram: { glyph: '▤', label: 'RAM', color: '#22c55e' },
-  drive: { glyph: '◫', label: 'DRIVE', color: '#f59e0b' },
-  led: { glyph: '●', label: 'LED', color: '#ef4444' },
-  fan: { glyph: '✻', label: 'FAN', color: '#22d3ee' },
-  screw: { glyph: '⊕', label: 'SCREW', color: '#facc15' },
+  cpu: { glyph: '▣', color: '#4f7cff' },
+  ram: { glyph: '▤', color: '#22c55e' },
+  drive: { glyph: '◫', color: '#f59e0b' },
+  led: { glyph: '●', color: '#ef4444' },
+  fan: { glyph: '✻', color: '#22d3ee' },
+  screw: { glyph: '⊕', color: '#facc15' },
 };
 
 // Reel i stops after REEL_BASE_S + i * REEL_STAGGER_S; the win is paid when the last one stops.
@@ -20,13 +21,14 @@ const STRIP_LENGTH = 14;
 const SPIN_MS = (REEL_BASE_S + 2 * REEL_STAGGER_S) * 1000 + 100;
 
 function Symbol({ symbol }) {
+  const { t } = useLang();
   const look = SYMBOL_LOOK[symbol];
   return (
     <span className={styles.cell} style={{ '--sym': look.color }}>
       <span className={styles.glyph} aria-hidden="true">
         {look.glyph}
       </span>
-      <span className={styles.symLabel}>{look.label}</span>
+      <span className={styles.symLabel}>{t(`casino.slots.symbols.${symbol}`)}</span>
     </span>
   );
 }
@@ -41,10 +43,11 @@ const makeStrip = (from, to) => [
 
 export default function Slots({ chips, rng, onChange }) {
   const reduceMotion = useReducedMotion();
+  const { t } = useLang();
   const [bet, setBet] = useState('10');
   const [reels, setReels] = useState(['cpu', 'ram', 'drive']);
   const [strips, setStrips] = useState(null);
-  const [message, setMessage] = useState('Three of a kind wins. Three screws is the jackpot.');
+  const [message, setMessage] = useState({ key: 'casino.slots.intro' });
   const pending = useRef(null);
   const amount = toBet(bet);
 
@@ -63,7 +66,7 @@ export default function Slots({ chips, rng, onChange }) {
     chips.give(won);
     setReels(result);
     setStrips(null);
-    setMessage(won > 0 ? `+${won} chips` : 'No match. The house thanks you.');
+    setMessage(won > 0 ? { key: 'casino.plusChips', vars: { count: won } } : { key: 'casino.slots.lose' });
     onChange();
   }
 
@@ -77,7 +80,7 @@ export default function Slots({ chips, rng, onChange }) {
       return;
     }
     setStrips(result.map((symbol, i) => makeStrip(reels[i], symbol)));
-    setMessage('Spinning…');
+    setMessage({ key: 'casino.slots.spinning' });
     pending.current = { won, timer: setTimeout(() => settle(result, won), SPIN_MS) };
   }
 
@@ -86,7 +89,7 @@ export default function Slots({ chips, rng, onChange }) {
   return (
     <section className={styles.panel} aria-labelledby="slots-title">
       <h2 id="slots-title" className={styles.title}>
-        Slots
+        {t('casino.slots.title')}
       </h2>
       <div className={styles.reels} aria-live="polite" aria-busy={spinning}>
         {reels.map((symbol, i) => (
@@ -112,21 +115,21 @@ export default function Slots({ chips, rng, onChange }) {
       <div className={styles.controls}>
         <BetField value={bet} onChange={setBet} />
         <button type="button" className={styles.button} onClick={spin} disabled={spinning || !chips.canBet(amount)}>
-          {spinning ? 'Spinning…' : 'Spin'}
+          {t(spinning ? 'casino.slots.spinning' : 'casino.slots.spin')}
         </button>
       </div>
-      <p className={styles.lcd}>{message}</p>
+      <p className={styles.lcd}>{t(message.key, message.vars)}</p>
 
-      <table className={styles.paytable} aria-label="Payouts">
+      <table className={styles.paytable} aria-label={t('casino.slots.payouts')}>
         <tbody>
           {SLOT_PAYTABLE.map(({ symbol, multiplier, jackpot }) => (
             <tr key={symbol} className={jackpot ? styles.jackpotRow : undefined}>
-              <td className={styles.payGlyphs} style={{ '--sym': SYMBOL_LOOK[symbol].color }} aria-label={`3 × ${SYMBOL_LOOK[symbol].label}`}>
+              <td className={styles.payGlyphs} style={{ '--sym': SYMBOL_LOOK[symbol].color }} aria-label={t('casino.slots.threeOf', { symbol: t(`casino.slots.symbols.${symbol}`) })}>
                 {SYMBOL_LOOK[symbol].glyph.repeat(3)}
               </td>
-              <td>{SYMBOL_LOOK[symbol].label}</td>
+              <td>{t(`casino.slots.symbols.${symbol}`)}</td>
               <td className={styles.payX}>
-                {multiplier}x{jackpot && <span className={styles.jackpotTag}> JACKPOT</span>}
+                {multiplier}x{jackpot && <span className={styles.jackpotTag}> {t('casino.slots.jackpot')}</span>}
               </td>
             </tr>
           ))}

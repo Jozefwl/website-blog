@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { createDeck, dealerPlay, handValue, isBlackjack, settle, shuffle } from '../../lib/casino/blackjack.js';
 import BetField, { toBet } from './BetField.jsx';
+import { useLang } from '../../i18n/LanguageContext.jsx';
 import styles from './casino.module.css';
 
 function Hand({ label, cards, hideHole = false }) {
+  const { t } = useLang();
   return (
     <div>
       <span className={styles.field}>
@@ -13,7 +15,7 @@ function Hand({ label, cards, hideHole = false }) {
       <div className={styles.hand}>
         {cards.map((c, i) =>
           hideHole && i === 1 ? (
-            <span key={i} className={`${styles.card} ${styles.hidden}`} aria-label="hidden card">
+            <span key={i} className={`${styles.card} ${styles.hidden}`} aria-label={t('casino.blackjack.hiddenCard')}>
               ??
             </span>
           ) : (
@@ -30,16 +32,21 @@ function Hand({ label, cards, hideHole = false }) {
 
 // One player against the dealer. Dealer stands on all 17s, blackjack pays 3:2 (rounded down).
 export default function Blackjack({ chips, rng, onChange }) {
+  const { t } = useLang();
   const [bet, setBet] = useState('10');
   const [round, setRound] = useState({ phase: 'bet', player: [], dealer: [], deck: [], stake: 0 });
-  const [message, setMessage] = useState('Dealer stands on 17. Blackjack pays 3:2.');
+  const [message, setMessage] = useState({ key: 'casino.blackjack.intro' });
   const amount = toBet(bet);
 
   function finish(player, dealer, deck, stake) {
     const back = Math.floor(settle(player, dealer, stake));
     chips.give(back);
     setRound({ phase: 'done', player, dealer, deck, stake });
-    setMessage(back > stake ? `You win ${back - stake}.` : back === stake ? 'Push. Bet returned.' : 'Dealer wins.');
+    setMessage(
+      back > stake
+        ? { key: 'casino.blackjack.win', vars: { amount: back - stake } }
+        : { key: back === stake ? 'casino.blackjack.push' : 'casino.blackjack.lose' },
+    );
     onChange();
   }
 
@@ -55,7 +62,7 @@ export default function Blackjack({ chips, rng, onChange }) {
       return;
     }
     setRound({ phase: 'play', player, dealer, deck: rest, stake: amount });
-    setMessage('Hit or stand?');
+    setMessage({ key: 'casino.blackjack.prompt' });
   }
 
   function hit() {
@@ -75,35 +82,35 @@ export default function Blackjack({ chips, rng, onChange }) {
   return (
     <section className={styles.panel} aria-labelledby="bj-title">
       <h2 id="bj-title" className={styles.title}>
-        Blackjack
+        {t('casino.blackjack.title')}
       </h2>
       {round.phase !== 'bet' && (
         <>
-          <Hand label="Dealer" cards={round.dealer} hideHole={playing} />
-          <Hand label="You" cards={round.player} />
+          <Hand label={t('casino.blackjack.dealer')} cards={round.dealer} hideHole={playing} />
+          <Hand label={t('casino.blackjack.you')} cards={round.player} />
         </>
       )}
       <div className={styles.controls}>
         {playing ? (
           <>
             <button type="button" className={styles.button} onClick={hit}>
-              Hit
+              {t('casino.blackjack.hit')}
             </button>
             <button type="button" className={styles.button} onClick={stand}>
-              Stand
+              {t('casino.blackjack.stand')}
             </button>
           </>
         ) : (
           <>
             <BetField value={bet} onChange={setBet} />
             <button type="button" className={styles.button} onClick={deal} disabled={!chips.canBet(amount)}>
-              Deal
+              {t('casino.blackjack.deal')}
             </button>
           </>
         )}
       </div>
       <p className={styles.lcd} aria-live="polite">
-        {message}
+        {t(message.key, message.vars)}
       </p>
     </section>
   );

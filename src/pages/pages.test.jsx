@@ -172,7 +172,7 @@ describe('About', () => {
 
   test('about: subtitle and three story sections', () => {
     renderAbout();
-    expect(screen.getByText(ABOUT_SUBTITLE)).toBeInTheDocument();
+    expect(screen.getByText(ABOUT_SUBTITLE.en)).toBeInTheDocument();
     for (const name of ['How it started', 'Where it went', 'Off the clock', "Let's connect"]) {
       expect(screen.getByRole('heading', { level: 2, name })).toBeInTheDocument();
     }

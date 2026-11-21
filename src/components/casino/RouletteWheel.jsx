@@ -29,7 +29,7 @@ function wedge(i) {
 // The wheel spins clockwise; the ball runs the other way, drops, hops over a few dividers and
 // rolls into the winning pocket (see lib/casino/wheelMotion.js). The snap on `settled` is only a
 // safety net for dropped frames. `spin` = { result, durationMs } (durationMs 0 = no animation).
-export default function RouletteWheel({ spin, settled }) {
+export default function RouletteWheel({ spin, settled, label = 'Roulette wheel' }) {
   const wheelRef = useRef(null);
   const ballRef = useRef(null);
   const angles = useRef({ wheel: 0, ball: 0 });
@@ -74,7 +74,7 @@ export default function RouletteWheel({ spin, settled }) {
   }, [settled, spin]);
 
   return (
-    <svg className={styles.wheel} viewBox="-100 -100 200 200" role="img" aria-label="Roulette wheel">
+    <svg className={styles.wheel} viewBox="-100 -100 200 200" role="img" aria-label={label}>
       <circle r={R_OUTER} fill="#5a3418" stroke="#2a170a" strokeWidth="3" />
       <circle r={R_TRACK + 6} fill="#20242c" />
       <circle r={R_TRACK - 6} fill="#2b3039" />

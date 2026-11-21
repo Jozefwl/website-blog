@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { formatMoney, gatewayDelay, parseAmount } from '../../lib/casino/gateway.js';
+import { useLang } from '../../i18n/LanguageContext.jsx';
 import styles from './JozefPay.module.css';
 
 // JozefPay: a fake card-payment page that pops up over the casino. Corporate white, navy and
@@ -10,6 +11,8 @@ import styles from './JozefPay.module.css';
 const SUCCESS_MS = 1000;
 
 export default function JozefPay({ bank, chips, onPaid, onClose, delayRng = Math.random }) {
+  const { lang, t } = useLang();
+  const money = (n) => formatMoney(n, lang);
   const [step, setStep] = useState('connecting'); // connecting | form | processing | done
   const [raw, setRaw] = useState('');
   const dialogRef = useRef(null);
@@ -64,8 +67,8 @@ export default function JozefPay({ bank, chips, onPaid, onClose, delayRng = Math
           <span id="jozefpay-brand" className={styles.brand}>
             JozefPay
           </span>
-          <span className={styles.secure}>Secure checkout</span>
-          <button type="button" className={styles.close} onClick={close} disabled={busy} aria-label="Close">
+          <span className={styles.secure}>{t('pay.secure')}</span>
+          <button type="button" className={styles.close} onClick={close} disabled={busy} aria-label={t('pay.close')}>
             ×
           </button>
         </header>
@@ -74,17 +77,15 @@ export default function JozefPay({ bank, chips, onPaid, onClose, delayRng = Math
         {step === 'connecting' && (
           <div className={styles.loading} role="status">
             <span className={styles.spinner} aria-hidden="true" />
-            <p className={styles.loadingTitle}>Connecting to JozefPay…</p>
-            <p className={styles.muted}>Please do not close or refresh this window.</p>
+            <p className={styles.loadingTitle}>{t('pay.connecting')}</p>
+            <p className={styles.muted}>{t('pay.doNotClose')}</p>
           </div>
         )}
         {step === 'processing' && (
           <div className={styles.loading} role="status">
             <span className={styles.spinner} aria-hidden="true" />
-            <p className={styles.loadingTitle}>Processing transaction…</p>
-            <p className={styles.muted}>
-              Paying {formatMoney(amount)} to waldhauser.sk Casino. Please do not close or refresh this window.
-            </p>
+            <p className={styles.loadingTitle}>{t('pay.processing')}</p>
+            <p className={styles.muted}>{t('pay.paying', { amount: money(amount) })}</p>
           </div>
         )}
         {step === 'done' && (
@@ -93,24 +94,24 @@ export default function JozefPay({ bank, chips, onPaid, onClose, delayRng = Math
               <circle className={styles.checkCircle} cx="26" cy="26" r="24" />
               <path className={styles.checkTick} d="M14 27 l8 8 l16 -17" />
             </svg>
-            <p className={styles.loadingTitle}>Payment successful</p>
-            <p className={styles.muted}>{formatMoney(amount)} added as chips.</p>
+            <p className={styles.loadingTitle}>{t('pay.success')}</p>
+            <p className={styles.muted}>{t('pay.added', { amount: money(amount) })}</p>
           </div>
         )}
         {step === 'form' && (
           <form className={styles.body} onSubmit={pay}>
-            <h2 className={styles.title}>Add funds</h2>
+            <h2 className={styles.title}>{t('pay.title')}</h2>
             <dl className={styles.summary}>
-              <dt>Merchant</dt>
-              <dd>waldhauser.sk Casino</dd>
-              <dt>Account</dt>
-              <dd>JozefPay Personal ••• 4242</dd>
-              <dt>Available balance</dt>
-              <dd className={styles.balance}>{formatMoney(balance)}</dd>
+              <dt>{t('pay.merchant')}</dt>
+              <dd>{t('pay.merchantName')}</dd>
+              <dt>{t('pay.account')}</dt>
+              <dd>{t('pay.accountName')}</dd>
+              <dt>{t('pay.balance')}</dt>
+              <dd className={styles.balance}>{money(balance)}</dd>
             </dl>
 
             <div className={styles.field}>
-              <label htmlFor="jozefpay-amount">Amount</label>
+              <label htmlFor="jozefpay-amount">{t('pay.amount')}</label>
               <span className={styles.inputWrap}>
                 <span className={styles.currency} aria-hidden="true">
                   €
@@ -130,30 +131,25 @@ export default function JozefPay({ bank, chips, onPaid, onClose, delayRng = Math
             </div>
             {insufficient && (
               <p className={styles.error} role="alert">
-                Insufficient balance
+                {t('pay.insufficient')}
               </p>
             )}
-            <p className={styles.muted}>1 € = 1 chip. Whole euros only.</p>
+            <p className={styles.muted}>{t('pay.rate')}</p>
 
             <div className={styles.actions}>
               <button type="button" className={styles.secondary} onClick={close}>
-                Cancel
+                {t('pay.cancel')}
               </button>
               <button type="submit" className={styles.primary} disabled={!canPay}>
-                Pay {canPay ? formatMoney(amount) : ''}
+                {t('pay.pay')} {canPay ? money(amount) : ''}
               </button>
             </div>
           </form>
         )}
 
         <footer className={styles.disclaimer}>
-          <p>
-            JozefPay is a fictional payment service for the waldhauser.sk casino. No real money, card or personal data is
-            used, and balances exist only in this browser. By selecting Pay you authorise JozefPay to transfer the amount
-            shown from your JozefPay account to the merchant. Transfers are final and cannot be reversed. JozefPay is not a
-            bank and is not regulated by anyone, least of all a central bank.
-          </p>
-          <p>© 2026 JozefPay · Terms · Privacy · Help</p>
+          <p>{t('pay.disclaimer')}</p>
+          <p>{t('pay.links')}</p>
         </footer>
       </div>
     </div>

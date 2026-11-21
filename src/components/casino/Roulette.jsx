@@ -3,23 +3,17 @@ import { useReducedMotion } from 'motion/react';
 import { colorOf, roulettePayout, spinWheel } from '../../lib/casino/roulette.js';
 import BetField, { toBet } from './BetField.jsx';
 import RouletteWheel from './RouletteWheel.jsx';
+import { useLang } from '../../i18n/LanguageContext.jsx';
 
 const WHEEL_MS = 5000;
 import styles from './casino.module.css';
 
-const BET_TYPES = [
-  { value: 'red', label: 'Red' },
-  { value: 'black', label: 'Black' },
-  { value: 'odd', label: 'Odd' },
-  { value: 'even', label: 'Even' },
-  { value: 'low', label: 'Low (1–18)' },
-  { value: 'high', label: 'High (19–36)' },
-  { value: 'number', label: 'Single number' },
-];
+const BET_TYPES = ['red', 'black', 'odd', 'even', 'low', 'high', 'number'];
 
 // European wheel: a number pays 35:1, outside bets pay 1:1, zero loses every outside bet.
 export default function Roulette({ chips, rng, onChange }) {
   const reduceMotion = useReducedMotion();
+  const { t } = useLang();
   const [bet, setBet] = useState('10');
   const [spin, setSpin] = useState(null);
   const [settled, setSettled] = useState(true);
@@ -27,7 +21,7 @@ export default function Roulette({ chips, rng, onChange }) {
   const [type, setType] = useState('red');
   const [number, setNumber] = useState('17');
   const [last, setLast] = useState(null);
-  const [message, setMessage] = useState('Single zero. Numbers pay 35:1.');
+  const [message, setMessage] = useState({ key: 'casino.roulette.intro' });
   const amount = toBet(bet);
   const pick = number.trim() === '' ? NaN : Number(number); // an empty field is not "0"
   const numberOk = type !== 'number' || (Number.isInteger(pick) && pick >= 0 && pick <= 36);
@@ -47,7 +41,7 @@ export default function Roulette({ chips, rng, onChange }) {
     chips.give(won);
     setLast(result);
     setSettled(true);
-    setMessage(won > 0 ? `+${won} chips` : 'The ball disagrees.');
+    setMessage(won > 0 ? { key: 'casino.plusChips', vars: { count: won } } : { key: 'casino.roulette.lose' });
     onChange();
   }
 
@@ -62,18 +56,18 @@ export default function Roulette({ chips, rng, onChange }) {
       return;
     }
     setSettled(false);
-    setMessage('No more bets…');
+    setMessage({ key: 'casino.roulette.noMoreBets' });
     pending.current = { won, timer: setTimeout(() => settle(result, won), WHEEL_MS) };
   }
 
   return (
     <section className={styles.panel} aria-labelledby="roulette-title">
       <h2 id="roulette-title" className={styles.title}>
-        Roulette
+        {t('casino.roulette.title')}
       </h2>
-      <RouletteWheel spin={spin} settled={settled} />
+      <RouletteWheel spin={spin} settled={settled} label={t('casino.roulette.wheel')} />
       <p aria-live="polite">
-        Last spin:{' '}
+        {t('casino.roulette.lastSpin')}{' '}
         {last == null ? (
           '—'
         ) : (
@@ -85,26 +79,26 @@ export default function Roulette({ chips, rng, onChange }) {
       <div className={styles.controls}>
         <BetField value={bet} onChange={setBet} />
         <label className={styles.field}>
-          Bet on
+          {t('casino.roulette.betOn')}
           <select value={type} onChange={(e) => setType(e.target.value)}>
-            {BET_TYPES.map((t) => (
-              <option key={t.value} value={t.value}>
-                {t.label}
+            {BET_TYPES.map((type) => (
+              <option key={type} value={type}>
+                {t(`casino.roulette.types.${type}`)}
               </option>
             ))}
           </select>
         </label>
         {type === 'number' && (
           <label className={styles.field}>
-            Number
+            {t('casino.roulette.number')}
             <input type="number" min="0" max="36" step="1" value={number} onChange={(e) => setNumber(e.target.value)} />
           </label>
         )}
         <button type="button" className={styles.button} onClick={play} disabled={!settled || !numberOk || !chips.canBet(amount)}>
-          {settled ? 'Spin' : 'Spinning…'}
+          {t(settled ? 'casino.slots.spin' : 'casino.slots.spinning')}
         </button>
       </div>
-      <p className={styles.lcd}>{message}</p>
+      <p className={styles.lcd}>{t(message.key, message.vars)}</p>
     </section>
   );
 }

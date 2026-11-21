@@ -3,6 +3,7 @@ import { flushSync } from 'react-dom';
 import { Link, useNavigate } from 'react-router';
 import { motion, useReducedMotion } from 'motion/react';
 import { HEADER_VT_NAME, TIMING, activeTransition, isPlainLeftClick, runViewTransition, skipOnNextPress } from '../../lib/transitions.js';
+import { useLang } from '../../i18n/LanguageContext.jsx';
 import StatusLed from './StatusLed.jsx';
 import ChassisBox from './ChassisBox.jsx';
 import RackEar from './RackEar.jsx';
@@ -29,6 +30,8 @@ const drawer = {
 // skipRef: shared; set when the visitor skips a push-in, so the following auto-open skips too.
 export default function RackUnit({ unit, leds, startOpen = false, autoOpen = false, fastClose = false, onClosed, busyRef, skipRef }) {
   const navigate = useNavigate();
+  const { t } = useLang();
+  const title = t(`nav.${unit.id}`);
   const reduceMotion = useReducedMotion();
   const localBusy = useRef(false);
   const busy = busyRef ?? localBusy;
@@ -153,14 +156,14 @@ export default function RackUnit({ unit, leds, startOpen = false, autoOpen = fal
       >
         {/* Inner wrapper lifts the server a little on hover (CSS), separate from the slide (Motion). */}
         <div className={styles.hoverLift}>
-          <ChassisBox label={unit.title} />
+          <ChassisBox label={title} />
           <Link
             to={unit.to}
             onClick={onClick}
             onKeyDown={onKeyDown}
             className={`${styles.faceplate} ${styles.server} ${styles.clickable}`}
             style={named ? { viewTransitionName: HEADER_VT_NAME } : undefined}
-            aria-label={`Open ${unit.title}${downCount ? ` (${downCount} service down)` : ''}`}
+            aria-label={t('rack.open', { title }) + (downCount ? t('rack.down', { count: downCount }) : '')}
             data-opening={opening || undefined}
           >
             <RackEar />
@@ -171,7 +174,7 @@ export default function RackUnit({ unit, leds, startOpen = false, autoOpen = fal
               </span>
 
               <span className={styles.label}>
-                <span className={styles.unitTitle}>{unit.title}</span>
+                <span className={styles.unitTitle}>{title}</span>
                 <span className={styles.caption}>$ {unit.caption}</span>
               </span>
 

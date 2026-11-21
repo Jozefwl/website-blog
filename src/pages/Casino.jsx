@@ -8,12 +8,13 @@ import JozefPay from '../components/casino/JozefPay.jsx';
 import { createChipStore } from '../lib/casino/chips.js';
 import { createBank } from '../lib/casino/gateway.js';
 import casinoStyles from '../components/casino/casino.module.css';
+import { useLang } from '../i18n/LanguageContext.jsx';
 import styles from './Casino.module.css';
 
 const GAMES = [
-  { id: 'slots', label: 'Slots', Game: Slots },
-  { id: 'blackjack', label: 'Blackjack', Game: Blackjack },
-  { id: 'roulette', label: 'Roulette', Game: Roulette },
+  { id: 'slots', Game: Slots },
+  { id: 'blackjack', Game: Blackjack },
+  { id: 'roulette', Game: Roulette },
 ];
 
 function safeLocalStorage() {
@@ -27,6 +28,7 @@ function safeLocalStorage() {
 // Hidden page behind the loose screw. Play money only, kept in this browser.
 // gatewayRng only exists so tests can pin JozefPay's random wait times.
 export default function Casino({ rng = Math.random, storage, gatewayRng = Math.random }) {
+  const { t } = useLang();
   const store = useMemo(() => (storage === undefined ? safeLocalStorage() : storage), [storage]);
   const chips = useMemo(() => createChipStore(store), [store]);
   const bank = useMemo(() => createBank(store), [store]);
@@ -48,18 +50,18 @@ export default function Casino({ rng = Math.random, storage, gatewayRng = Math.r
 
   return (
     <>
-      <PageHeader tag="U?" title="Casino" subtitle="You found the loose screw. Play money only." />
+      <PageHeader tag="U?" title={t('casino.title')} subtitle={t('casino.subtitle')} />
 
       <div className={styles.bar}>
         <p className={styles.chips} aria-live="polite">
-          Chips: <strong data-testid="chips">{balance}</strong>
+          {t('casino.chips')} <strong data-testid="chips">{balance}</strong>
         </p>
         <button
           type="button"
           className={casinoStyles.button}
           onClick={() => setPaying(true)}
         >
-          Add funds
+          {t('casino.addFunds')}
         </button>
       </div>
 
@@ -73,7 +75,7 @@ export default function Casino({ rng = Math.random, storage, gatewayRng = Math.r
         />
       )}
 
-      <div className={styles.tabs} role="group" aria-label="Games">
+      <div className={styles.tabs} role="group" aria-label={t('casino.games')}>
         {GAMES.map((g) => (
           <button
             key={g.id}
@@ -82,7 +84,7 @@ export default function Casino({ rng = Math.random, storage, gatewayRng = Math.r
             aria-pressed={g.id === gameId}
             onClick={() => setGameId(g.id)}
           >
-            {g.label}
+            {t(`casino.${g.id}.title`)}
           </button>
         ))}
       </div>
@@ -90,7 +92,7 @@ export default function Casino({ rng = Math.random, storage, gatewayRng = Math.r
       <Game chips={chips} rng={rng} onChange={refresh} />
 
       <p className={styles.back}>
-        <RackLink to="/">← Back to the rack</RackLink>
+        <RackLink to="/">{t('casino.back')}</RackLink>
       </p>
     </>
   );

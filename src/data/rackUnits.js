@@ -1,9 +1,9 @@
 // Rack units on the homepage and which Uptime Kuma monitors light their LEDs.
+// Each unit's label is the navbar text for its id (src/i18n: nav.<id>).
 // Monitor IDs come from the "waldhauser-services" status page on monitoring.waldoserver.top.
 export const RACK_UNITS = [
   {
     id: 'about',
-    title: 'About',
     to: '/about',
     tag: 'U1',
     caption: 'whoami',
@@ -14,7 +14,6 @@ export const RACK_UNITS = [
   },
   {
     id: 'projects',
-    title: 'Projects',
     to: '/projects',
     tag: 'U2',
     caption: 'git log',
@@ -25,7 +24,6 @@ export const RACK_UNITS = [
   },
   {
     id: 'services',
-    title: 'Services',
     to: '/services',
     tag: 'U3',
     caption: 'systemctl status',
@@ -39,7 +37,6 @@ export const RACK_UNITS = [
   },
   {
     id: 'contact',
-    title: 'Contact',
     to: '/contact',
     tag: 'U4',
     caption: 'ping jozef',

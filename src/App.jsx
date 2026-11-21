@@ -8,6 +8,12 @@ import Services from './pages/Services.jsx';
 import Contact from './pages/Contact.jsx';
 import NotFound from './pages/NotFound.jsx';
 import LoadBoundary from './components/common/LoadBoundary.jsx';
+import { useLang } from './i18n/LanguageContext.jsx';
+
+function Booting() {
+  const { t } = useLang();
+  return <p>{t('load.booting')}</p>;
+}
 
 // The casino behind the loose screw: its code only downloads when someone finds it.
 const Casino = lazy(() => import('./pages/Casino.jsx'));
@@ -29,7 +35,7 @@ export default function App() {
           path="casino"
           element={
             <LoadBoundary>
-              <Suspense fallback={<p>Booting…</p>}>
+              <Suspense fallback={<Booting />}>
                 <Casino />
               </Suspense>
             </LoadBoundary>

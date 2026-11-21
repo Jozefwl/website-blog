@@ -1,10 +1,12 @@
+import { useLang } from '../../i18n/LanguageContext.jsx';
 import styles from './casino.module.css';
 
 // Whole-chip bet input. The game disables its play button when the bet is invalid.
 export default function BetField({ value, onChange }) {
+  const { t } = useLang();
   return (
     <label className={styles.field}>
-      Bet
+      {t('casino.bet')}
       <input type="number" min="1" step="1" inputMode="numeric" value={value} onChange={(e) => onChange(e.target.value)} />
     </label>
   );

@@ -287,3 +287,11 @@ describe('JozefPay gateway', () => {
     expect(formatMoney(5)).toBe('€5.00');
   });
 });
+
+describe('money format per language', () => {
+  test('Slovak puts the euro sign after, with a space and decimal comma', () => {
+    expect(formatMoney(100000, 'sk')).toBe('100 000,00 €'); // no-break spaces
+    expect(formatMoney(5, 'sk')).toBe('5,00 €');
+    expect(formatMoney(100000)).toBe('€100,000.00'); // English stays the default
+  });
+});

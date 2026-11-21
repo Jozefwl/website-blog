@@ -15,4 +15,9 @@ export function parseAmount(raw) {
   return /^\d+$/.test(text) && Number(text) > 0 ? Number(text) : NaN;
 }
 
-export const formatMoney = (n) => `€${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+// English: €100,000.00. Slovak: 100 000,00 € (no-break spaces, so the amount never wraps).
+export function formatMoney(n, lang = 'en') {
+  const [whole, cents] = n.toFixed(2).split('.');
+  if (lang === 'sk') return `${whole.replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0')},${cents}\u00a0€`;
+  return `€${whole.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}.${cents}`;
+}

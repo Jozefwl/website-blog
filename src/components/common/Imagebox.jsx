@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
+import { pick, useLang } from '../../i18n/LanguageContext.jsx';
 import styles from './Imagebox.module.css';
 
 // Slideshow: cross-fades to the next slide every `intervalMs`, loops forever.
 export default function Imagebox({ slides, intervalMs = 4500 }) {
+  const { lang } = useLang();
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
@@ -20,7 +22,7 @@ export default function Imagebox({ slides, intervalMs = 4500 }) {
           <img
             key={slide.src}
             src={slide.src}
-            alt={i === index ? slide.alt : ''}
+            alt={i === index ? pick(slide.alt, lang) : ''}
             aria-hidden={i !== index}
             className={i === index ? `${styles.image} ${styles.visible}` : styles.image}
             loading={i === 0 ? 'eager' : 'lazy'}
@@ -28,7 +30,7 @@ export default function Imagebox({ slides, intervalMs = 4500 }) {
           />
         ))}
       </div>
-      {current?.caption && <figcaption className={styles.caption}>{current.caption}</figcaption>}
+      {current?.caption && <figcaption className={styles.caption}>{pick(current.caption, lang)}</figcaption>}
     </figure>
   );
 }

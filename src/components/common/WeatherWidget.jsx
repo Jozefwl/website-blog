@@ -1,9 +1,10 @@
 import { useState } from 'react';
+import { useLang } from '../../i18n/LanguageContext.jsx';
 import styles from './WeatherWidget.module.css';
 
 // Meteoblue widgets (same URLs as the old site). Iframes load only after "Expand Weather".
 const QUERY =
-  'geoloc=fixed&days=4&tempunit=CELSIUS&windunit=KILOMETER_PER_HOUR&precipunit=MILLIMETER&coloured=coloured&pictoicon=1&maxtemperature=1&mintemperature=1&windspeed=1&windgust=0&winddirection=1&uv=0&humidity=0&precipitation=1&precipitationprobability=1&spot=1&pressure=0&layout=light';
+  'geoloc=fixed&days=4&tempunit=CELSIUS&windunit=KILOMETER_PER_HOUR&precipunit=MILLIMETER&coloured=coloured&pictoicon=1&maxtemperature=1&mintemperature=1&windspeed=1&windgust=0&winddirection=1&uv=0&humidity=0&precipitation=1&precipitationprobability=1&spot=1&pressure=0&layout=dark';
 
 const PLACES = [
   {
@@ -24,19 +25,20 @@ const PLACES = [
 ];
 
 export default function WeatherWidget() {
+  const { t } = useLang();
   const [expanded, setExpanded] = useState(false);
 
   return (
     <section className={styles.wrapper}>
       <button type="button" className={styles.button} onClick={() => setExpanded((v) => !v)} aria-expanded={expanded}>
-        {expanded ? 'Collapse Weather' : 'Expand Weather'}
+        {t(expanded ? 'weather.collapse' : 'weather.expand')}
       </button>
       {expanded && (
         <div className={styles.widgets}>
           {PLACES.map((place) => (
             <div key={place.name} className={styles.widget}>
               <iframe
-                title={`Weather in ${place.name}`}
+                title={t('weather.frameTitle', { place: place.name })}
                 src={place.widget}
                 sandbox="allow-same-origin allow-scripts allow-popups allow-popups-to-escape-sandbox"
                 className={styles.frame}

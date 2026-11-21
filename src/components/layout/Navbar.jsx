@@ -1,19 +1,21 @@
+import { useLang } from '../../i18n/LanguageContext.jsx';
 import RackLink from '../common/RackLink.jsx';
 import styles from './Navbar.module.css';
 
 const LINKS = [
-  { to: '/', label: 'Home', end: true },
-  { to: '/about', label: 'About' },
-  { to: '/projects', label: 'Projects' },
-  { to: '/services', label: 'Services' },
-  { to: '/contact', label: 'Contact' },
+  { to: '/', key: 'home', end: true },
+  { to: '/about', key: 'about' },
+  { to: '/projects', key: 'projects' },
+  { to: '/services', key: 'services' },
+  { to: '/contact', key: 'contact' },
 ];
 
 export default function Navbar() {
+  const { t } = useLang();
   return (
     <header className={styles.bar}>
-      <nav className={styles.nav} aria-label="Main">
-        {LINKS.map(({ to, label, end }) => (
+      <nav className={styles.nav} aria-label={t('nav.label')}>
+        {LINKS.map(({ to, key, end }) => (
           <RackLink
             nav
             key={to}
@@ -21,7 +23,7 @@ export default function Navbar() {
             end={end}
             className={({ isActive }) => (isActive ? `${styles.link} ${styles.active}` : styles.link)}
           >
-            {label}
+            {t(`nav.${key}`)}
           </RackLink>
         ))}
       </nav>

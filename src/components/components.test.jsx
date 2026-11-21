@@ -146,4 +146,13 @@ describe('WeatherWidget', () => {
     expect(screen.getAllByTitle(/Weather in/)).toHaveLength(3);
     expect(screen.getByRole('button', { name: 'Collapse Weather' })).toBeInTheDocument();
   });
+
+  test('meteoblue widgets use their dark layout', async () => {
+    render(<WeatherWidget />);
+    await userEvent.click(screen.getByRole('button', { name: 'Expand Weather' }));
+    for (const frame of screen.getAllByTitle(/Weather in/)) {
+      expect(frame.getAttribute('src')).toContain('layout=dark');
+      expect(frame.getAttribute('src')).not.toContain('layout=light');
+    }
+  });
 });

@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useLang } from '../../i18n/LanguageContext.jsx';
 import RackLink from '../common/RackLink.jsx';
 import { createConsentStore } from '../../lib/consent.js';
 import styles from './CookieNotice.module.css';
@@ -12,6 +13,7 @@ function safeLocalStorage() {
 }
 
 export default function CookieNotice() {
+  const { t } = useLang();
   const consent = useMemo(() => createConsentStore(safeLocalStorage()), []);
   const [visible, setVisible] = useState(() => !consent.isAccepted());
 
@@ -23,17 +25,15 @@ export default function CookieNotice() {
   }
 
   return (
-    <div className={styles.notice} role="region" aria-label="Cookie notice">
+    <div className={styles.notice} role="region" aria-label={t('cookie.label')}>
       <p className={styles.text}>
-        <strong>Disclaimer:</strong> This site uses cookies for basic functionality. Meteoblue&apos;s cookies are used by the weather
-        widget (when you click Expand Weather), and Cloudflare collects analytics for website statistics (these can be blocked with an
-        adblocker).
+        <strong>{t('cookie.title')}</strong> {t('cookie.text')}
         <br />
-        For implementation details see my GitHub in the <RackLink to="/contact">Contact page</RackLink> or{' '}
-        <RackLink to="/services">Services page</RackLink>.
+        {t('cookie.details')} <RackLink to="/contact">{t('cookie.contactPage')}</RackLink> {t('cookie.or')}{' '}
+        <RackLink to="/services">{t('cookie.servicesPage')}</RackLink>.
       </p>
       <button type="button" className={styles.button} onClick={close}>
-        Close
+        {t('cookie.close')}
       </button>
     </div>
   );

@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { useLocation, useNavigationType } from 'react-router';
 import { RACK_UNITS } from '../../data/rackUnits.js';
+import { useLang } from '../../i18n/LanguageContext.jsx';
 import { useServiceStatus } from '../../hooks/useServiceStatus.js';
 import { ledsForUnit } from '../../lib/status.js';
 import LcdClock from './LcdClock.jsx';
@@ -17,6 +18,7 @@ const U_NUMBERS = Array.from({ length: TOTAL_U }, (_, i) => TOTAL_U - i);
 // The homepage server rack, drawn with CSS 3D transforms.
 // `summary` can be passed in (tests); otherwise it is polled from the backend.
 export function RackView({ summary, statusError }) {
+  const { t } = useLang();
   const location = useLocation();
   const navigationType = useNavigationType();
   // Only a real in-app navigation (PUSH) replays the return choreography; back/forward and
@@ -43,7 +45,7 @@ export function RackView({ summary, statusError }) {
         <div className={styles.header}>
           <span className={styles.brand}>WALDHAUSER.SK</span>
           <span className={styles.statusText} role="status">
-            {statusError && !summary ? 'status: offline' : summary ? 'status: live' : 'status: …'}
+            {t(statusError && !summary ? 'rack.statusOffline' : summary ? 'rack.statusLive' : 'rack.statusLoading')}
           </span>
         </div>
 
