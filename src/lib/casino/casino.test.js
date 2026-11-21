@@ -5,6 +5,7 @@ import { SLOT_PAYTABLE, SLOT_SYMBOLS, expectedSlotReturn, slotPayout, spinReels 
 import { createDeck, dealerPlay, handValue, isBlackjack, settle, shuffle } from './blackjack.js';
 import { WHEEL_ORDER, colorOf, pocketAngle, roulettePayout, spinWheel } from './roulette.js';
 import { ballPosition, planBallPath } from './wheelMotion.js';
+import { BANK_START, createBank, formatMoney, gatewayDelay, parseAmount } from './gateway.js';
 
 const card = (rank, suit = '♠') => ({ rank, suit });
 const hand = (...ranks) => ranks.map((r) => card(r));
@@ -67,15 +68,6 @@ describe('chips', () => {
     }
   });
 
-  test('addFunds tops up by 1000 and persists', () => {
-    const storage = fakeStorage('0');
-    const chips = createChipStore(storage);
-    expect(chips.canBet(1)).toBe(false);
-    chips.addFunds();
-    chips.addFunds();
-    expect(chips.get()).toBe(2000);
-    expect(createChipStore(storage).get()).toBe(2000);
-  });
 });
 
 describe('slots', () => {
@@ -248,5 +240,50 @@ describe('roulette ball path', () => {
       expect(r).toBeGreaterThanOrEqual(geometry.rest - 0.001);
       expect(r).toBeLessThanOrEqual(geometry.track + 0.001);
     }
+  });
+});
+
+describe('JozefPay gateway', () => {
+  test('loading takes a random 5 to 10 seconds', () => {
+    expect(gatewayDelay(() => 0)).toBe(5000);
+    expect(gatewayDelay(() => 0.999999)).toBe(10000);
+    const rng = createRng(8);
+    for (let i = 0; i < 50; i += 1) {
+      const ms = gatewayDelay(rng);
+      expect(ms >= 5000 && ms <= 10000).toBe(true);
+    }
+  });
+
+  test('the bank starts with 100,000 and pays out only what it has', () => {
+    const storage = fakeStorage();
+    const bank = createBank(storage);
+    expect(BANK_START).toBe(100000);
+    expect(bank.get()).toBe(100000);
+    expect(bank.take(100001)).toBe(false);
+    expect(bank.take(25000)).toBe(true);
+    expect(createBank(storage).get()).toBe(75000); // persisted
+  });
+
+  test('the bank is stored apart from the chips', () => {
+    const storage = fakeStorage();
+    createBank(storage).take(5000);
+    expect(createChipStore(storage).get()).toBe(1000);
+  });
+
+  test.each([
+    ['5000', 5000],
+    [' 42 ', 42],
+    ['', NaN],
+    ['0', NaN],
+    ['-5', NaN],
+    ['1.5', NaN],
+    ['abc', NaN],
+  ])('parseAmount(%j) is %s', (raw, expected) => {
+    expect(parseAmount(raw)).toBe(expected);
+  });
+
+  test('money is shown with thousands separators and cents', () => {
+    expect(formatMoney(100000)).toBe('€100,000.00');
+    expect(formatMoney(5)).toBe('€5.00');
   });
 });

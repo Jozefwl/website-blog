@@ -4,7 +4,9 @@ import RackLink from '../components/common/RackLink.jsx';
 import Blackjack from '../components/casino/Blackjack.jsx';
 import Roulette from '../components/casino/Roulette.jsx';
 import Slots from '../components/casino/Slots.jsx';
+import JozefPay from '../components/casino/JozefPay.jsx';
 import { createChipStore } from '../lib/casino/chips.js';
+import { createBank } from '../lib/casino/gateway.js';
 import casinoStyles from '../components/casino/casino.module.css';
 import styles from './Casino.module.css';
 
@@ -23,8 +25,12 @@ function safeLocalStorage() {
 }
 
 // Hidden page behind the loose screw. Play money only, kept in this browser.
-export default function Casino({ rng = Math.random, storage }) {
-  const chips = useMemo(() => createChipStore(storage === undefined ? safeLocalStorage() : storage), [storage]);
+// gatewayRng only exists so tests can pin JozefPay's random wait times.
+export default function Casino({ rng = Math.random, storage, gatewayRng = Math.random }) {
+  const store = useMemo(() => (storage === undefined ? safeLocalStorage() : storage), [storage]);
+  const chips = useMemo(() => createChipStore(store), [store]);
+  const bank = useMemo(() => createBank(store), [store]);
+  const [paying, setPaying] = useState(false);
   const [balance, setBalance] = useState(() => chips.get());
   const [gameId, setGameId] = useState('slots');
   const refresh = () => setBalance(chips.get());
@@ -51,14 +57,21 @@ export default function Casino({ rng = Math.random, storage }) {
         <button
           type="button"
           className={casinoStyles.button}
-          onClick={() => {
-            chips.addFunds();
-            refresh();
-          }}
+          onClick={() => setPaying(true)}
         >
           Add funds
         </button>
       </div>
+
+      {paying && (
+        <JozefPay
+          bank={bank}
+          chips={chips}
+          onPaid={refresh}
+          delayRng={gatewayRng}
+          onClose={() => setPaying(false)}
+        />
+      )}
 
       <div className={styles.tabs} role="group" aria-label="Games">
         {GAMES.map((g) => (

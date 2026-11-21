@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 import { act, fireEvent } from '@testing-library/react';
@@ -79,17 +79,99 @@ describe('Casino', () => {
     expect(screen.getByRole('button', { name: 'Spin' })).toBeDisabled();
   });
 
-  test('Add funds is always there and adds 1000 each time', async () => {
-    renderCasino({ storage: fakeStorage('0') });
-    await userEvent.click(screen.getByRole('button', { name: 'Add funds' }));
-    expect(chips()).toBe(1000);
-    await userEvent.click(screen.getByRole('button', { name: 'Add funds' }));
-    expect(chips()).toBe(2000);
-  });
+  // Opens JozefPay and waits out its (fake) loading time.
+  function openGateway() {
+    fireEvent.click(screen.getByRole('button', { name: 'Add funds' }));
+    act(() => vi.advanceTimersByTime(10000));
+    return screen.getByRole('dialog', { name: /JozefPay/ });
+  }
 
-  test('Add funds also shows when you still have chips', () => {
+  test('Add funds is always there, even with chips left', () => {
     renderCasino({ storage: fakeStorage() });
     expect(screen.getByRole('button', { name: 'Add funds' })).toBeInTheDocument();
+  });
+
+  test('JozefPay loads for a while before showing the form', () => {
+    vi.useFakeTimers();
+    renderCasino({ storage: fakeStorage() });
+    fireEvent.click(screen.getByRole('button', { name: 'Add funds' }));
+    const dialog = screen.getByRole('dialog', { name: /JozefPay/ });
+    expect(within(dialog).getByRole('status')).toHaveTextContent(/connecting/i);
+    expect(within(dialog).queryByLabelText('Amount')).toBeNull();
+    act(() => vi.advanceTimersByTime(4999));
+    expect(within(dialog).queryByLabelText('Amount')).toBeNull(); // never faster than 5 s
+    act(() => vi.advanceTimersByTime(5001));
+    expect(within(dialog).getByRole('heading', { name: 'Add funds' })).toBeInTheDocument();
+    expect(within(dialog).getByText('€100,000.00')).toBeInTheDocument();
+  });
+
+  test('paying: processing 5-10 s, then a checkmark for 1 s, then it closes', () => {
+    vi.useFakeTimers();
+    const storage = fakeStorage();
+    renderCasino({ storage, gatewayRng: () => 0.999999 }); // slowest gateway: every wait is exactly 10 s
+    const dialog = openGateway();
+    fireEvent.change(within(dialog).getByLabelText('Amount'), { target: { value: '5000' } });
+    fireEvent.click(within(dialog).getByRole('button', { name: /^Pay/ }));
+
+    expect(within(dialog).getByRole('status')).toHaveTextContent(/processing transaction/i);
+    act(() => vi.advanceTimersByTime(4999));
+    expect(chips()).toBe(1000); // nothing moves while processing
+    expect(within(dialog).getByRole('status')).toHaveTextContent(/processing transaction/i);
+
+    act(() => vi.advanceTimersByTime(5001));
+    expect(within(dialog).getByRole('status')).toHaveTextContent(/payment successful/i);
+    expect(within(dialog).getByTestId('checkmark')).toBeInTheDocument();
+    expect(chips()).toBe(6000);
+    expect(storage.getItem('jozefpay.bank')).toBe('95000');
+
+    act(() => vi.advanceTimersByTime(1000));
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(chips()).toBe(6000);
+  });
+
+  test('a payment in progress cannot be closed halfway', () => {
+    vi.useFakeTimers();
+    renderCasino({ storage: fakeStorage() });
+    const dialog = openGateway();
+    fireEvent.change(within(dialog).getByLabelText('Amount'), { target: { value: '300' } });
+    fireEvent.click(within(dialog).getByRole('button', { name: /^Pay/ }));
+    fireEvent.keyDown(dialog, { key: 'Escape' });
+    expect(within(dialog).getByRole('button', { name: 'Close' })).toBeDisabled();
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    act(() => vi.advanceTimersByTime(11000));
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(chips()).toBe(1300);
+  });
+
+  test('more than the bank holds: red insufficient balance, cannot pay', () => {
+    vi.useFakeTimers();
+    renderCasino({ storage: fakeStorage() });
+    const dialog = openGateway();
+    fireEvent.change(within(dialog).getByLabelText('Amount'), { target: { value: '100001' } });
+    expect(within(dialog).getByRole('alert')).toHaveTextContent('Insufficient balance');
+    expect(within(dialog).getByRole('button', { name: /^Pay/ })).toBeDisabled();
+    fireEvent.change(within(dialog).getByLabelText('Amount'), { target: { value: '100000' } });
+    expect(within(dialog).queryByRole('alert')).toBeNull();
+    expect(within(dialog).getByRole('button', { name: /^Pay/ })).toBeEnabled();
+  });
+
+  test('cancel and Escape close JozefPay without paying', () => {
+    vi.useFakeTimers();
+    renderCasino({ storage: fakeStorage() });
+    let dialog = openGateway();
+    fireEvent.change(within(dialog).getByLabelText('Amount'), { target: { value: '500' } });
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Cancel' }));
+    expect(screen.queryByRole('dialog')).toBeNull();
+    dialog = openGateway();
+    fireEvent.keyDown(dialog, { key: 'Escape' });
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(chips()).toBe(1000);
+  });
+
+  test('the gateway carries the small-print disclaimer', () => {
+    vi.useFakeTimers();
+    renderCasino({ storage: fakeStorage() });
+    expect(openGateway()).toHaveTextContent(/fictional/i);
   });
 
   test('blackjack: deal, stand settles', async () => {

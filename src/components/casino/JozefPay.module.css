@@ -1,0 +1,305 @@
+/* JozefPay: corporate card-gateway look. White page, navy + gold, black text, plain sans-serif.
+   Deliberately not the site's dark rack style: it should feel like you left the site. */
+.overlay {
+  --jp-navy: #142170;
+  --jp-navy-dark: #0b1450;
+  --jp-gold: #f7b600;
+  --jp-text: #111318;
+  --jp-muted: #5b6170;
+  --jp-line: #dfe3ec;
+  --jp-red: #d0021b;
+
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(5, 6, 10, 0.72);
+  backdrop-filter: blur(2px);
+}
+
+.dialog {
+  width: min(440px, 100%);
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+  color: var(--jp-text);
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  font-family: 'Helvetica Neue', Arial, system-ui, sans-serif;
+  outline: none;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  background: var(--jp-navy);
+  color: #fff;
+  border-radius: 6px 6px 0 0;
+}
+
+.brand {
+  font-style: italic;
+  font-weight: 800;
+  font-size: 1.45rem;
+  letter-spacing: -0.02em;
+}
+
+.secure {
+  margin-left: auto;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.85;
+}
+
+.close {
+  width: 28px;
+  height: 28px;
+  font-size: 1.3rem;
+  line-height: 1;
+  color: #fff;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.stripe {
+  height: 5px;
+  background: var(--jp-gold);
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 48px 24px 40px;
+  text-align: center;
+}
+
+.spinner {
+  width: 46px;
+  height: 46px;
+  margin-bottom: 12px;
+  border: 5px solid var(--jp-line);
+  border-top-color: var(--jp-navy);
+  border-right-color: var(--jp-gold);
+  border-radius: 50%;
+  animation: jp-spin 0.9s linear infinite;
+}
+
+@keyframes jp-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loadingTitle {
+  margin: 0;
+  font-weight: 700;
+  color: var(--jp-navy);
+}
+
+.body {
+  padding: 22px 24px 8px;
+}
+
+.title {
+  margin: 0 0 14px;
+  font-size: 1.3rem;
+  color: var(--jp-navy);
+}
+
+.summary {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 16px;
+  margin: 0 0 18px;
+  padding: 12px 14px;
+  font-size: 0.88rem;
+  background: #f5f7fb;
+  border: 1px solid var(--jp-line);
+  border-radius: 4px;
+}
+
+.summary dt {
+  color: var(--jp-muted);
+}
+
+.summary dd {
+  margin: 0;
+  text-align: right;
+  font-weight: 600;
+}
+
+.balance {
+  color: var(--jp-navy);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.inputWrap {
+  display: flex;
+  align-items: center;
+  border: 1px solid #b9c0cf;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.inputWrap:focus-within {
+  border-color: var(--jp-navy);
+  box-shadow: 0 0 0 3px rgba(20, 33, 112, 0.18);
+}
+
+.currency {
+  padding: 0 4px 0 12px;
+  font-weight: 700;
+  color: var(--jp-muted);
+}
+
+.inputWrap input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px 10px 4px;
+  font: inherit;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--jp-text);
+  background: transparent;
+  border: 0;
+  outline: none;
+}
+
+.inputWrap:has(input[aria-invalid]) {
+  border-color: var(--jp-red);
+}
+
+.error {
+  margin: 6px 0 0;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--jp-red);
+}
+
+.muted {
+  margin: 6px 0 0;
+  font-size: 0.8rem;
+  color: var(--jp-muted);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin: 20px 0 14px;
+}
+
+.primary,
+.secondary {
+  padding: 10px 18px;
+  font: inherit;
+  font-weight: 700;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.primary {
+  min-width: 9rem;
+  color: var(--jp-navy-dark);
+  background: var(--jp-gold);
+  border: 1px solid #d99f00;
+}
+
+.primary:disabled {
+  color: #8a8f9c;
+  background: #eceef3;
+  border-color: var(--jp-line);
+  cursor: not-allowed;
+}
+
+.secondary {
+  color: var(--jp-navy);
+  background: #fff;
+  border: 1px solid var(--jp-navy);
+}
+
+.disclaimer {
+  padding: 12px 24px 16px;
+  font-size: 0.68rem;
+  line-height: 1.45;
+  color: var(--jp-muted);
+  background: #f5f7fb;
+  border-top: 1px solid var(--jp-line);
+  border-radius: 0 0 6px 6px;
+}
+
+.disclaimer p {
+  margin: 0 0 6px;
+}
+
+.disclaimer p:last-child {
+  margin: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation-duration: 3s;
+  }
+}
+
+/* Success checkmark: the circle and tick draw themselves in. */
+.check {
+  width: 64px;
+  height: 64px;
+  margin-bottom: 8px;
+}
+
+.checkCircle {
+  fill: none;
+  stroke: #1f9d55;
+  stroke-width: 3;
+  stroke-dasharray: 152;
+  stroke-dashoffset: 152;
+  animation: jp-draw 0.45s ease-out forwards;
+}
+
+.checkTick {
+  fill: none;
+  stroke: #1f9d55;
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 40;
+  stroke-dashoffset: 40;
+  animation: jp-draw 0.3s 0.35s ease-out forwards;
+}
+
+@keyframes jp-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.close:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .checkCircle,
+  .checkTick {
+    animation: none;
+    stroke-dashoffset: 0;
+  }
+}
