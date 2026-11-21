@@ -5,7 +5,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev --ignore-scripts
 
-COPY server.js status.js ./
+COPY server.js status.js rateLimit.js ./
 
 EXPOSE 5000
 
