@@ -17,7 +17,7 @@ const renderInRouter = (ui) => render(<MemoryRouter>{ui}</MemoryRouter>);
 describe('StatusLed', () => {
   test('state is in the accessible name, not only colour', () => {
     render(<StatusLed status="down" label="ERP" />);
-    const led = screen.getByRole('img', { name: 'ERP: down' });
+    const led = screen.getByRole('img', { name: 'ERP: off' });
     expect(led).toHaveAttribute('data-status', 'down');
   });
 });

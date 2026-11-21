@@ -99,7 +99,7 @@ describe('Services', () => {
 
   test('services: LEDs only where a monitor exists', () => {
     renderServices({ monitors: [{ id: 10, status: 'down' }] });
-    expect(screen.getByRole('img', { name: 'ERPNext: down' })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'ERPNext: off' })).toBeInTheDocument();
     const rene = screen.getByRole('link', { name: /rrautodoprava\.sk/ }).closest('li');
     expect(within(rene).queryByRole('img')).toBeNull();
   });
@@ -173,7 +173,7 @@ describe('About', () => {
   test('about: subtitle and three story sections', () => {
     renderAbout();
     expect(screen.getByText(ABOUT_SUBTITLE.en)).toBeInTheDocument();
-    for (const name of ['How it started', 'Where it went', 'Off the clock', "Let's connect"]) {
+    for (const name of ['How it started', 'Where it went', 'In my free time', "Let's connect"]) {
       expect(screen.getByRole('heading', { level: 2, name })).toBeInTheDocument();
     }
   });

@@ -32,8 +32,8 @@ export default {
     metricsError: 'Error: {error}',
   },
   led: {
-    up: 'up',
-    down: 'down',
+    up: 'on',
+    down: 'off',
     pending: 'pending',
     maintenance: 'maintenance',
     unknown: 'unknown',
@@ -85,7 +85,7 @@ export default {
     title: 'Unit not found',
     led: 'Page',
     text: 'This slot is empty.',
-    back: 'Back to the rack',
+    back: 'Go back',
   },
   load: {
     failed: "Couldn't load this page. The site was probably updated while you had it open.",
@@ -98,7 +98,7 @@ export default {
     chips: 'Chips:',
     addFunds: 'Add funds',
     games: 'Games',
-    back: '← Back to the rack',
+    back: '← Go back',
     bet: 'Bet',
     plusChips: '+{count} chips',
     slots: {
@@ -106,7 +106,7 @@ export default {
       intro: 'Three of a kind wins. Three screws is the jackpot.',
       spin: 'Spin',
       spinning: 'Spinning…',
-      lose: 'No match. The house thanks you.',
+      lose: 'No match. The house always wins.',
       payouts: 'Payouts',
       threeOf: '3 × {symbol}',
       jackpot: 'JACKPOT',
@@ -141,7 +141,7 @@ export default {
       betOn: 'Bet on',
       number: 'Number',
       noMoreBets: 'No more bets…',
-      lose: 'The ball disagrees.',
+      lose: 'Truth is... the game was rigged from the start.',
       types: {
         red: 'Red',
         black: 'Black',
@@ -170,11 +170,11 @@ export default {
     balance: 'Available balance',
     amount: 'Amount',
     insufficient: 'Insufficient balance',
-    rate: '1 € = 1 chip. Whole euros only.',
+    rate: '1 € = 1 chip.',
     cancel: 'Cancel',
     pay: 'Pay',
     disclaimer:
       'JozefPay is a fictional payment service for the waldhauser.sk casino. No real money, card or personal data is used, and balances exist only in this browser. By selecting Pay you authorise JozefPay to transfer the amount shown from your JozefPay account to the merchant. Transfers are final and cannot be reversed. JozefPay is not a bank and is not regulated by anyone, least of all a central bank.',
-    links: '© 2026 JozefPay · Terms · Privacy · Help',
+    links: '© 2026 JozefPay · Terms · Blood contracts · Help',
   },
 };

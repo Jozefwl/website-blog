@@ -30,14 +30,14 @@ describe('the whole site in Slovak', () => {
   ])('%s has the Slovak heading "%s"', (path, heading) => {
     renderSk(<App />, path);
     expect(screen.getByRole('heading', { level: 1, name: heading })).toBeInTheDocument();
-    expect(screen.getByRole('navigation', { name: 'Hlavná navigácia' })).toHaveTextContent('O mne');
+    expect(screen.getByRole('navigation', { name: 'Hlavné' })).toHaveTextContent('O mne');
   });
 
   test('the rack speaks Slovak', () => {
     renderSk(<App />, '/');
     expect(screen.getByRole('link', { name: 'Otvoriť O mne' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Uvoľnená skrutka' })).toBeInTheDocument();
-    expect(screen.getByText('HLAVNÝ RACK')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Voľná skrutka' })).toBeInTheDocument();
+    expect(screen.getByText('HLAVNÝ SERVER RACK')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Zobraziť počasie' })).toBeInTheDocument();
   });
 
@@ -48,7 +48,7 @@ describe('the whole site in Slovak', () => {
     unmount();
     renderSk(<App />, '/projects');
     expect(screen.getByRole('heading', { name: 'Zamestnanie' })).toBeInTheDocument();
-    expect(screen.getAllByText('Najťažšie:')).toHaveLength(2);
+    expect(screen.getAllByText('Ťažká časť:')).toHaveLength(2);
     expect(screen.getAllByRole('link', { name: 'Zobraziť na GitHube →' })).toHaveLength(3);
   });
 
@@ -65,7 +65,7 @@ describe('the whole site in Slovak', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Pridať prostriedky' }));
     const dialog = screen.getByRole('dialog', { name: /JozefPay/ });
-    expect(within(dialog).getByRole('status')).toHaveTextContent('Pripája sa k JozefPay…');
+    expect(within(dialog).getByRole('status')).toHaveTextContent('Pripájanie k JozefPay…');
     act(() => vi.advanceTimersByTime(5000));
     expect(within(dialog).getByText('100 000,00 €')).toBeInTheDocument();
     fireEvent.change(within(dialog).getByLabelText('Suma'), { target: { value: '200000' } });

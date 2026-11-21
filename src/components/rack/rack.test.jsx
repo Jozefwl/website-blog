@@ -51,8 +51,8 @@ describe('RackView', () => {
 
   test('a down monitor shows red and is announced', () => {
     renderHome(<RackView summary={{ monitors: [{ id: 10, status: 'down' }, { id: 8, status: 'up' }] }} />);
-    expect(screen.getByRole('img', { name: 'ERP: down' })).toHaveAttribute('data-status', 'down');
-    expect(screen.getByRole('img', { name: 'CDN: up' })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'ERP: off' })).toHaveAttribute('data-status', 'down');
+    expect(screen.getByRole('img', { name: 'CDN: on' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Open Services (1 service down)' })).toBeInTheDocument();
   });
 
