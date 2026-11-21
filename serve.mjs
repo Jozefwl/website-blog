@@ -12,7 +12,9 @@ export const SECURITY_HEADERS = {
     "base-uri 'self'",
     "object-src 'none'",
     "frame-ancestors 'self'",
-    "script-src 'self' 'unsafe-inline'",
+    // The Vite build has no inline scripts, so none are allowed (blocks injected <script> XSS).
+    "script-src 'self'",
+    "form-action 'self'",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: https:",

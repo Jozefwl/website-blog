@@ -1,8 +1,12 @@
 const express = require('express');
 const axios = require('axios');
 const { createStatusFetcher } = require('./status');
+const { resolveClientIp, createRateLimiter } = require('./rateLimit');
 const app = express();
 const port = 5000;
+
+// Don't advertise the framework.
+app.disable('x-powered-by');
 
 const prometheusUrl = process.env.PROMETHEUS_URL;
 const NODE_INFO = parseNodeInfo(process.env.NODE_LABELS_JSON);
@@ -11,9 +15,12 @@ const ALLOWED_ORIGINS = new Set([
   'https://www.waldhauser.sk',
   ...(process.env.NODE_ENV !== 'production' ? ['http://localhost:3000'] : []),
 ]);
-const RATE_LIMIT_WINDOW_MS = 60 * 1000;
-const RATE_LIMIT_MAX_REQUESTS = 60;
-const ipRateMap = new Map();
+const isRateLimited = createRateLimiter({ windowMs: 60 * 1000, max: 60 });
+const PROMETHEUS_TIMEOUT_MS = 5000;
+// Cache /metrics briefly so bursts of visitors don't each hit Prometheus twice.
+const METRICS_TTL_MS = 10 * 1000;
+let metricsCache = null;
+let metricsCachedAt = 0;
 
 const cpuQuery = '100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle",job="node-exporter"}[5m]))) * 100';
 const memQuery = '100 * (1 - (node_memory_MemAvailable_bytes{job="node-exporter"} / node_memory_MemTotal_bytes{job="node-exporter"}))';
@@ -66,19 +73,30 @@ function groupByInstance(cpuResults, memResults) {
     nodes[instance].memory = parseFloat(item.value[1]);
   }
 
-  return Object.values(nodes).sort((a, b) => a.name.localeCompare(b.name));
+  // `instance` is the node's LAN address (e.g. 192.168.x.x:9100); don't publish it.
+  // The frontend only needs a stable key, so the display name stands in for it.
+  return Object.values(nodes)
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map((node) => ({ ...node, instance: node.name }));
 }
 
 async function fetchMetrics() {
+  if (metricsCache && Date.now() - metricsCachedAt < METRICS_TTL_MS) {
+    return metricsCache;
+  }
+
   try {
+    const options = { timeout: PROMETHEUS_TIMEOUT_MS };
     const [cpuRes, memRes] = await Promise.all([
-      axios.get(`${prometheusUrl}/api/v1/query`, { params: { query: cpuQuery } }),
-      axios.get(`${prometheusUrl}/api/v1/query`, { params: { query: memQuery } })
+      axios.get(`${prometheusUrl}/api/v1/query`, { ...options, params: { query: cpuQuery } }),
+      axios.get(`${prometheusUrl}/api/v1/query`, { ...options, params: { query: memQuery } }),
     ]);
 
-    return {
+    metricsCache = {
       nodes: groupByInstance(cpuRes.data.data.result, memRes.data.data.result),
     };
+    metricsCachedAt = Date.now();
+    return metricsCache;
   } catch (error) {
     console.error(`Error fetching metrics: ${error.message}`);
     throw error;
@@ -90,31 +108,9 @@ function setSecurityHeaders(res) {
   res.header('X-Frame-Options', 'SAMEORIGIN');
   res.header('Referrer-Policy', 'strict-origin-when-cross-origin');
   res.header('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
-}
-
-function resolveClientIp(req) {
-  const forwarded = req.get('X-Forwarded-For');
-  if (forwarded) {
-    return forwarded.split(',')[0].trim();
-  }
-  return req.socket?.remoteAddress || req.ip || 'unknown';
-}
-
-function isRateLimited(ip) {
-  const now = Date.now();
-  const record = ipRateMap.get(ip);
-
-  if (!record || now - record.windowStart >= RATE_LIMIT_WINDOW_MS) {
-    ipRateMap.set(ip, { windowStart: now, count: 1 });
-    return false;
-  }
-
-  record.count += 1;
-  if (record.count > RATE_LIMIT_MAX_REQUESTS) {
-    return true;
-  }
-
-  return false;
+  // JSON-only API: nothing here should ever render or load resources.
+  res.header('Content-Security-Policy', "default-src 'none'; frame-ancestors 'none'");
+  res.header('Strict-Transport-Security', 'max-age=63072000; includeSubDomains');
 }
 
 app.use((req, res, next) => {
