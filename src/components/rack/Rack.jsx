@@ -1,3 +1,5 @@
+import { useRef, useState } from 'react';
+import { useLocation, useNavigationType } from 'react-router';
 import { RACK_UNITS } from '../../data/rackUnits.js';
 import { useServiceStatus } from '../../hooks/useServiceStatus.js';
 import { ledsForUnit } from '../../lib/status.js';
@@ -15,6 +17,17 @@ const U_NUMBERS = Array.from({ length: TOTAL_U }, (_, i) => TOTAL_U - i);
 // The homepage server rack, drawn with CSS 3D transforms.
 // `summary` can be passed in (tests); otherwise it is polled from the backend.
 export function RackView({ summary, statusError }) {
+  const location = useLocation();
+  const navigationType = useNavigationType();
+  // Only a real in-app navigation (PUSH) replays the return choreography; back/forward and
+  // reloads restore old history state, which must never auto-open anything.
+  const [returning] = useState(() =>
+    navigationType === 'PUSH' && location.state?.from ? { from: location.state.from, next: location.state.next } : null,
+  );
+  const [autoOpenTo, setAutoOpenTo] = useState(null);
+  const busyRef = useRef(false);
+  const skipRef = useRef(false);
+
   return (
     <div className={styles.scene}>
       <div className={styles.cabinet}>
@@ -62,14 +75,24 @@ export function RackView({ summary, statusError }) {
             </RackPanel>
 
             {RACK_UNITS.map((unit) => (
-              <RackUnit key={unit.id} unit={unit} leds={ledsForUnit(unit, summary)} />
+              <RackUnit
+                key={unit.id}
+                unit={unit}
+                leds={ledsForUnit(unit, summary)}
+                busyRef={busyRef}
+                skipRef={skipRef}
+                startOpen={returning?.from === unit.to}
+                fastClose={Boolean(returning?.next)}
+                onClosed={returning?.next ? () => setAutoOpenTo(returning.next) : undefined}
+                autoOpen={autoOpenTo === unit.to}
+              />
             ))}
 
             <RackPanel u={4} variant="appliance">
               <MetricsUnit />
             </RackPanel>
             <RackPanel u={1} variant="blank" />
-            <RackPanel u={1} variant="brush" />
+            <RackPanel u={1} variant="brush" screwTo="/casino" />
           </div>
         </div>
 

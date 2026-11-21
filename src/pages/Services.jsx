@@ -1,9 +1,10 @@
-import LinkCard from '../components/common/LinkCard.jsx';
 import PageHeader from '../components/common/PageHeader.jsx';
 import Socials from '../components/layout/Socials.jsx';
-import { ICON_CREDITS, SERVICE_GROUPS } from '../data/services.js';
+import FlowDiagram from '../components/showcase/FlowDiagram.jsx';
+import ServiceRow from '../components/showcase/ServiceRow.jsx';
+import { LIVE_SERVICES, RELEASE_FLOW, VISITOR_FLOW } from '../data/services.js';
 import { useServiceStatus } from '../hooks/useServiceStatus.js';
-import styles from './Page.module.css';
+import styles from './Services.module.css';
 
 // Pure view (testable without network). `summary` = backend /status response or null.
 export function ServicesView({ summary }) {
@@ -11,30 +12,19 @@ export function ServicesView({ summary }) {
 
   return (
     <>
-      <PageHeader tag="U3" title="Links/Services" />
+      <PageHeader tag="U3" title="Links/Services" subtitle="What runs on my own hardware, and how it gets there." />
 
-      {SERVICE_GROUPS.map((group) => (
-        <section key={group.title}>
-          <h3 className={styles.groupTitle}>{group.title}</h3>
-          <div className={styles.stack}>
-            {group.items.map((item) => (
-              <LinkCard
-                key={item.link}
-                {...item}
-                status={item.monitorId ? (statusById.get(item.monitorId) ?? 'unknown') : undefined}
-              />
-            ))}
-          </div>
-        </section>
-      ))}
+      <FlowDiagram title="How a release ships" steps={RELEASE_FLOW} />
+      <FlowDiagram title="What a visitor hits" steps={VISITOR_FLOW} />
 
-      <div className={styles.credits}>
-        {ICON_CREDITS.map((credit) => (
-          <a key={credit.href} href={credit.href} title={credit.title}>
-            {credit.text}
-          </a>
-        ))}
-      </div>
+      <section className={styles.section}>
+        <h2 className={styles.title}>Live</h2>
+        <ul className={styles.rows}>
+          {LIVE_SERVICES.map((service) => (
+            <ServiceRow key={service.href} service={service} status={statusById.get(service.monitorId)} />
+          ))}
+        </ul>
+      </section>
 
       <Socials />
     </>

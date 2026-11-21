@@ -1,0 +1,81 @@
+.section {
+  margin-bottom: 36px;
+}
+
+.title {
+  margin: 0 0 14px;
+  font-family: var(--font-display);
+  font-size: 1rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.flow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 28px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Each step is a small brushed faceplate with an arrow to the next one. */
+.step {
+  position: relative;
+  flex: 1 1 140px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 12px 14px;
+  text-align: center;
+  border: 1px solid var(--steel-400);
+  border-radius: 4px;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 6px, rgba(0, 0, 0, 0.22) 6px 8px),
+    linear-gradient(180deg, var(--steel-700), var(--steel-800));
+}
+
+.step:not(:last-child)::after {
+  content: '→';
+  position: absolute;
+  right: -22px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--accent);
+  font-size: 1.1rem;
+}
+
+.stepTitle {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+}
+
+.note {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+@media (max-width: 600px) {
+  .flow {
+    flex-direction: column;
+    gap: 26px;
+  }
+
+  .step {
+    flex-basis: auto;
+  }
+
+  .step:not(:last-child)::after {
+    content: '↓';
+    right: auto;
+    left: 50%;
+    top: auto;
+    bottom: -24px;
+    transform: translateX(-50%);
+  }
+}

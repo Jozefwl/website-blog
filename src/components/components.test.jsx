@@ -1,6 +1,6 @@
-import { act, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router';
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router';
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import StatusLed from './rack/StatusLed.jsx';
 import Gauge from './rack/Gauge.jsx';
@@ -8,6 +8,7 @@ import { LcdDisplay } from './rack/LcdClock.jsx';
 import { MetricsView } from './rack/MetricsUnit.jsx';
 import CookieNotice from './layout/CookieNotice.jsx';
 import Navbar from './layout/Navbar.jsx';
+import RackLink from './common/RackLink.jsx';
 import Imagebox from './common/Imagebox.jsx';
 import WeatherWidget from './common/WeatherWidget.jsx';
 
@@ -80,6 +81,42 @@ describe('Navbar', () => {
     for (const name of ['Home', 'About', 'Projects', 'Services', 'Contact']) {
       expect(screen.getByRole('link', { name })).toBeInTheDocument();
     }
+  });
+
+  // Every route renders the same probe, so the real rack (which auto-opens) stays out of it.
+  function Probe() {
+    const location = useLocation();
+    return (
+      <output data-testid="probe">
+        {location.pathname}
+        {JSON.stringify(location.state)}
+      </output>
+    );
+  }
+  const renderWithProbe = (ui, path) =>
+    render(
+      <MemoryRouter initialEntries={[path]}>
+        {ui}
+        <Routes>
+          <Route path="*" element={<Probe />} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+  test('Navbar hop goes via the rack', () => {
+    renderWithProbe(<Navbar />, '/projects');
+    fireEvent.click(screen.getByRole('link', { name: 'Contact' }));
+    const probe = screen.getByTestId('probe').textContent;
+    expect(probe).toMatch(/^\/\{/);
+    expect(probe).toContain('"next":"/contact"');
+    expect(probe).toContain('"from":"/projects"');
+  });
+
+  test('RackLink: ctrl-click is left to the browser', () => {
+    renderWithProbe(<RackLink to="/contact">Go</RackLink>, '/projects');
+    const notPrevented = fireEvent.click(screen.getByRole('link', { name: 'Go' }), { ctrlKey: true });
+    expect(notPrevented).toBe(true);
+    expect(screen.getByTestId('probe').textContent).toMatch(/^\/projects/);
   });
 });
 

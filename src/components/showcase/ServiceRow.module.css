@@ -1,0 +1,31 @@
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--steel-400);
+  border-radius: 3px;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 6px, rgba(0, 0, 0, 0.22) 6px 8px),
+    linear-gradient(180deg, var(--steel-700), var(--steel-800));
+}
+
+.ledSlot {
+  display: inline-flex;
+  width: 12px;
+  justify-content: center;
+}
+
+.name {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+
+.note {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-align: right;
+}

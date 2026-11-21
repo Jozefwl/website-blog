@@ -1,4 +1,4 @@
-import { NavLink } from 'react-router';
+import RackLink from '../common/RackLink.jsx';
 import styles from './Navbar.module.css';
 
 const LINKS = [
@@ -14,9 +14,15 @@ export default function Navbar() {
     <header className={styles.bar}>
       <nav className={styles.nav} aria-label="Main">
         {LINKS.map(({ to, label, end }) => (
-          <NavLink key={to} to={to} end={end} className={({ isActive }) => (isActive ? `${styles.link} ${styles.active}` : styles.link)}>
+          <RackLink
+            nav
+            key={to}
+            to={to}
+            end={end}
+            className={({ isActive }) => (isActive ? `${styles.link} ${styles.active}` : styles.link)}
+          >
             {label}
-          </NavLink>
+          </RackLink>
         ))}
       </nav>
     </header>

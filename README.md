@@ -9,7 +9,9 @@
 
 ## Short description
 Personal website. The homepage is a server rack: each unit (About, Projects, Services, Contact) has status LEDs
-driven by live Uptime Kuma data. Click a unit and it slides out, then opens its page.
+driven by live Uptime Kuma data. Click a unit and it slides out, then its faceplate morphs into the page header
+(View Transitions API; browsers without it just open the page). Every page is a server: the navbar pushes the
+current one back into the rack and pulls the next one out. Somewhere on the rack there is a loose screw.
 
 - **Frontend:** Vite + React (static build, no server-side rendering), React Router, Motion for the drawer animation.
 - **Backend (`server/`):** Express. `/metrics` (Prometheus CPU/RAM) and `/status` (Uptime Kuma proxy, because
@@ -22,11 +24,14 @@ src/
   main.jsx, App.jsx        entry + routes
   components/layout/       Navbar, CookieNotice, Socials, Layout
   components/rack/         Rack, RackUnit, StatusLed, LcdClock, MetricsUnit, Gauge
-  components/common/       AnimatedText, Infobox, Imagebox, LinkCard, ProjectCard, WeatherWidget
-  pages/                   Home, About, Projects, Services, Contact, NotFound
-  hooks/                   useNow, useMetrics, useServiceStatus
-  lib/                     pure helpers (tested)
-  data/                    rack units -> monitor IDs, projects, services, slides
+  components/common/       AnimatedText, DayJobPanel, Imagebox, ProjectCard, Prose, RackLink, WeatherWidget
+  components/showcase/     FlowDiagram, ServiceRow (Services page)
+  components/casino/       Slots, Blackjack, Roulette, BetField (lazy-loaded /casino page)
+  pages/                   Home, About, Projects, Services, Contact, Casino, NotFound
+  hooks/                   useNow, useMetrics, useServiceStatus, useRackNavigation
+  lib/                     pure helpers (tested); transitions.js = page transition timing + View Transitions wrapper
+  lib/casino/              seeded RNG, chip balance (localStorage), slots / blackjack / roulette rules
+  data/                    rack units -> monitor IDs, projects + day job, about copy, services showcase, slides
 serve.mjs                  static server + security headers (CSP etc.)
 ```
 

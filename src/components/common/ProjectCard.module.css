@@ -15,28 +15,34 @@
   word-break: break-word;
 }
 
+.context {
+  margin: 4px 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
 .description {
   margin: 0;
-  color: var(--text-muted);
   flex: 1;
 }
 
-.tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+.detail {
   margin: 0;
-  padding: 0;
-  list-style: none;
+  font-size: 0.9rem;
+  color: var(--text-muted);
 }
 
-.tag {
+.label {
   font-family: var(--font-mono);
-  font-size: 0.75rem;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: var(--accent-soft);
-  color: #b9cbff;
+  color: var(--text);
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: 4px 0 0;
 }
 
 .link {

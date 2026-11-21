@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Link } from 'react-router';
+import RackLink from '../common/RackLink.jsx';
 import { createConsentStore } from '../../lib/consent.js';
 import styles from './CookieNotice.module.css';
 
@@ -29,8 +29,8 @@ export default function CookieNotice() {
         widget (when you click Expand Weather), and Cloudflare collects analytics for website statistics (these can be blocked with an
         adblocker).
         <br />
-        For implementation details see my GitHub in the <Link to="/contact">Contact page</Link> or{' '}
-        <Link to="/services">Services page</Link>.
+        For implementation details see my GitHub in the <RackLink to="/contact">Contact page</RackLink> or{' '}
+        <RackLink to="/services">Services page</RackLink>.
       </p>
       <button type="button" className={styles.button} onClick={close}>
         Close

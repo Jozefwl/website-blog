@@ -4,7 +4,8 @@ import styles from './Rack.module.css';
 
 // Non-clickable rack equipment.
 // variant: 'blank' (vented filler), 'brush' (cable pass-through), 'console' (LCD), 'appliance' (screen).
-export default function RackPanel({ u = 1, variant = 'blank', children }) {
+// screwTo: turns the right-hand screw into a link (only the bottom brush panel uses it).
+export default function RackPanel({ u = 1, variant = 'blank', children, screwTo }) {
   const hasBody = variant === 'console' || variant === 'appliance';
 
   return (
@@ -18,7 +19,7 @@ export default function RackPanel({ u = 1, variant = 'blank', children }) {
             {variant === 'brush' && <span className={styles.brushStrip} aria-hidden="true" />}
             {hasBody && <div className={styles.screen}>{children}</div>}
           </div>
-          <RackEar />
+          <RackEar to={screwTo} />
         </div>
       </div>
     </div>

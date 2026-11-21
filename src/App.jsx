@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router';
 import Layout from './components/layout/Layout.jsx';
 import Home from './pages/Home.jsx';
@@ -6,6 +7,10 @@ import Projects from './pages/Projects.jsx';
 import Services from './pages/Services.jsx';
 import Contact from './pages/Contact.jsx';
 import NotFound from './pages/NotFound.jsx';
+import LoadBoundary from './components/common/LoadBoundary.jsx';
+
+// The casino behind the loose screw: its code only downloads when someone finds it.
+const Casino = lazy(() => import('./pages/Casino.jsx'));
 
 export default function App() {
   return (
@@ -20,6 +25,16 @@ export default function App() {
         <Route path="projects" element={<Projects />} />
         <Route path="services" element={<Services />} />
         <Route path="contact" element={<Contact />} />
+        <Route
+          path="casino"
+          element={
+            <LoadBoundary>
+              <Suspense fallback={<p>Booting…</p>}>
+                <Casino />
+              </Suspense>
+            </LoadBoundary>
+          }
+        />
         {/* Old URL from the Next.js site. */}
         <Route path="links" element={<Navigate to="/services" replace />} />
         <Route path="*" element={<NotFound />} />

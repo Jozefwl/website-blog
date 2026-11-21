@@ -1,0 +1,13 @@
+.prose {
+  max-width: 68ch;
+  font-size: 1.05rem;
+  line-height: 1.65;
+}
+
+.prose p {
+  margin: 0 0 1em;
+}
+
+.prose p:last-child {
+  margin-bottom: 0;
+}

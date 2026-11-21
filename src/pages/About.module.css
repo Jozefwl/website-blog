@@ -1,0 +1,16 @@
+/* Story sections styled as rack panels: brushed steel with a thin LED-green edge. */
+.panel {
+  padding: 24px 28px;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--led-up);
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, var(--surface-2), var(--surface));
+}
+
+.title {
+  margin: 0 0 12px;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  letter-spacing: 0.05em;
+  color: #93b4ff;
+}
