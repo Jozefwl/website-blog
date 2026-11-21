@@ -10,7 +10,7 @@ export default function Projects({ projects = PROJECTS, job = DAY_JOB }) {
     <>
       <PageHeader tag="U2" title="Projects" subtitle="Things I built, broke and fixed." />
       <DayJobPanel job={job} />
-      <div className={styles.grid}>
+      <div className={styles.projectGrid}>
         {projects.map((project) => (
           <ProjectCard key={project.name} project={project} />
         ))}

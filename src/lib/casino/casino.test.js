@@ -1,9 +1,10 @@
 import { describe, expect, test } from 'vitest';
 import { createRng } from './rng.js';
 import { createChipStore } from './chips.js';
-import { SLOT_SYMBOLS, slotPayout, spinReels } from './slots.js';
+import { SLOT_PAYTABLE, SLOT_SYMBOLS, expectedSlotReturn, slotPayout, spinReels } from './slots.js';
 import { createDeck, dealerPlay, handValue, isBlackjack, settle, shuffle } from './blackjack.js';
-import { colorOf, roulettePayout, spinWheel } from './roulette.js';
+import { WHEEL_ORDER, colorOf, pocketAngle, roulettePayout, spinWheel } from './roulette.js';
+import { ballPosition, planBallPath } from './wheelMotion.js';
 
 const card = (rank, suit = '♠') => ({ rank, suit });
 const hand = (...ranks) => ranks.map((r) => card(r));
@@ -66,30 +67,59 @@ describe('chips', () => {
     }
   });
 
-  test('reboot refills to 1000', () => {
-    const chips = createChipStore(fakeStorage('0'));
-    expect(chips.get()).toBe(0);
+  test('addFunds tops up by 1000 and persists', () => {
+    const storage = fakeStorage('0');
+    const chips = createChipStore(storage);
     expect(chips.canBet(1)).toBe(false);
-    chips.reboot();
-    expect(chips.get()).toBe(1000);
+    chips.addFunds();
+    chips.addFunds();
+    expect(chips.get()).toBe(2000);
+    expect(createChipStore(storage).get()).toBe(2000);
   });
 });
 
 describe('slots', () => {
   test.each([
-    [['screw', 'screw', 'screw'], 500],
-    [['cpu', 'cpu', 'cpu'], 100],
-    [['cpu', 'cpu', 'fan'], 10],
-    [['fan', 'cpu', 'fan'], 10],
+    [['screw', 'screw', 'screw'], 100000], // jackpot 10000x
+    [['cpu', 'cpu', 'cpu'], 1000], // 100x
+    [['ram', 'ram', 'ram'], 500], // 50x
+    [['drive', 'drive', 'drive'], 200], // 20x
+    [['fan', 'fan', 'fan'], 100], // 10x
+    [['led', 'led', 'led'], 100], // 10x
+    [['cpu', 'cpu', 'fan'], 0], // pairs pay nothing
     [['cpu', 'ram', 'fan'], 0],
   ])('%j with bet 10 pays %d', (reels, expected) => {
     expect(slotPayout(reels, 10)).toBe(expected);
+  });
+
+  test('the legend lists every winning line with its multiplier', () => {
+    expect(SLOT_PAYTABLE.map(({ symbol, multiplier }) => [symbol, multiplier])).toEqual([
+      ['screw', 10000],
+      ['cpu', 100],
+      ['ram', 50],
+      ['drive', 20],
+      ['fan', 10],
+      ['led', 10],
+    ]);
   });
 
   test('spin returns three known symbols', () => {
     const reels = spinReels(createRng(1));
     expect(reels).toHaveLength(3);
     for (const s of reels) expect(SLOT_SYMBOLS).toContain(s);
+  });
+
+  test('the screw is rare and the LED is common', () => {
+    const rng = createRng(99);
+    const counts = Object.fromEntries(SLOT_SYMBOLS.map((s) => [s, 0]));
+    for (let i = 0; i < 20000; i += 1) counts[spinReels(rng)[0]] += 1;
+    expect(counts.screw / 20000).toBeLessThan(0.04);
+    expect(counts.led / 20000).toBeGreaterThan(0.25);
+  });
+
+  test('the house keeps an edge (average payback below the bet)', () => {
+    expect(expectedSlotReturn()).toBeLessThan(1);
+    expect(expectedSlotReturn()).toBeGreaterThan(0.7);
   });
 });
 
@@ -168,6 +198,55 @@ describe('roulette', () => {
     for (let i = 0; i < 50; i += 1) {
       const n = spinWheel(rng);
       expect(Number.isInteger(n) && n >= 0 && n <= 36).toBe(true);
+    }
+  });
+});
+
+describe('roulette wheel layout', () => {
+  test('the European wheel holds every number once, starting at 0', () => {
+    expect(WHEEL_ORDER).toHaveLength(37);
+    expect(new Set(WHEEL_ORDER).size).toBe(37);
+    expect([...WHEEL_ORDER].sort((a, b) => a - b)).toEqual(Array.from({ length: 37 }, (_, i) => i));
+    expect(WHEEL_ORDER.slice(0, 4)).toEqual([0, 32, 15, 19]);
+  });
+
+  test('each number has its pocket angle on the wheel', () => {
+    expect(pocketAngle(0)).toBe(0);
+    expect(pocketAngle(32)).toBeCloseTo(360 / 37);
+    expect(pocketAngle(26)).toBeCloseTo((36 * 360) / 37);
+  });
+});
+
+describe('roulette ball path', () => {
+  const geometry = { track: 86, rest: 64 };
+  const relative = (pos) => (((pos.ball - pos.wheel) % 360) + 360) % 360;
+
+  test.each([0, 19, 26, 32])('the ball rolls into pocket %d by itself (no teleport needed)', (result) => {
+    const plan = planBallPath({ result, start: { wheel: 40, ball: 300 }, rng: createRng(result + 1), ...geometry });
+    const end = ballPosition(plan, 1);
+    expect(relative(end)).toBeCloseTo(pocketAngle(result), 6);
+    expect(end.r).toBeCloseTo(geometry.rest, 6);
+  });
+
+  test('it starts on the outer track where the last spin left it', () => {
+    const plan = planBallPath({ result: 7, start: { wheel: 40, ball: 300 }, rng: createRng(2), ...geometry });
+    const start = ballPosition(plan, 0);
+    expect(start.wheel).toBeCloseTo(40);
+    expect(start.ball).toBeCloseTo(300);
+    expect(start.r).toBeCloseTo(geometry.track);
+  });
+
+  test('once caught it rides with the wheel: the last 15% keeps the pocket', () => {
+    const plan = planBallPath({ result: 7, start: { wheel: 0, ball: 0 }, rng: createRng(3), ...geometry });
+    for (const t of [0.86, 0.9, 0.95]) expect(relative(ballPosition(plan, t))).toBeCloseTo(pocketAngle(7), 6);
+  });
+
+  test('the ball never leaves the wheel, even mid-bounce', () => {
+    const plan = planBallPath({ result: 12, start: { wheel: 0, ball: 0 }, rng: createRng(4), ...geometry });
+    for (let i = 0; i <= 100; i += 1) {
+      const { r } = ballPosition(plan, i / 100);
+      expect(r).toBeGreaterThanOrEqual(geometry.rest - 0.001);
+      expect(r).toBeLessThanOrEqual(geometry.track + 0.001);
     }
   });
 });

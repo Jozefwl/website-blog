@@ -1,7 +1,11 @@
 .card {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  /* Five rows shared with the neighbouring cards (subgrid), so sections line up across cards.
+     Browsers without subgrid fall back to a normal per-card grid. */
+  display: grid;
+  grid-row: span 5;
+  grid-template-rows: subgrid;
+  row-gap: 10px;
+  align-content: start;
   padding: 20px;
   background: linear-gradient(180deg, var(--surface-2), var(--surface));
   border: 1px solid var(--border);
@@ -24,7 +28,6 @@
 
 .description {
   margin: 0;
-  flex: 1;
 }
 
 .detail {
@@ -39,9 +42,11 @@
 }
 
 .links {
+  align-self: start; /* first link of every card on the same line */
   display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
+  flex-direction: column; /* one link per line, GitHub first */
+  align-items: flex-start;
+  gap: 8px;
   margin: 4px 0 0;
 }
 

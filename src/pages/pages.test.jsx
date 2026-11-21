@@ -139,6 +139,23 @@ describe('Projects', () => {
     ).toBeNull();
   });
 
+  test('projects: every card has the same five rows, so they line up in the grid', () => {
+    renderProjects();
+    for (const card of screen.getAllByRole('article')) {
+      expect(card.children).toHaveLength(5); // header, description, hard part, stack, links
+    }
+    // rrautodoprava.sk has no hard part: its row is an empty, hidden placeholder.
+    const rene = screen.getAllByRole('article')[2];
+    expect(rene.children[2]).toBeEmptyDOMElement();
+    expect(rene.children[2]).toHaveAttribute('aria-hidden', 'true');
+  });
+
+  test('projects: rrautodoprava.sk lists GitHub first, the live site below it', () => {
+    renderProjects();
+    const rene = screen.getAllByRole('article')[2];
+    expect([...rene.querySelectorAll('a')].map((a) => a.textContent)).toEqual(['View on GitHub →', 'Open the site →']);
+  });
+
   test('projects: links', () => {
     renderProjects();
     for (const href of ['https://rrautodoprava.sk', 'https://github.com/Jozefwl/rene-website', 'https://github.com/Jozefwl/biot-shutter']) {

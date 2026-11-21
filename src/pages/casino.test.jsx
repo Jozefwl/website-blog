@@ -1,15 +1,22 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
-import { describe, expect, test, vi } from 'vitest';
+import { act, fireEvent } from '@testing-library/react';
+import { afterEach, describe, expect, test, vi } from 'vitest';
 import { createRng } from '../lib/casino/rng.js';
 import { slotPayout, spinReels } from '../lib/casino/slots.js';
 import { createDeck, dealerPlay, isBlackjack, settle, shuffle } from '../lib/casino/blackjack.js';
 import { roulettePayout, spinWheel } from '../lib/casino/roulette.js';
 
+afterEach(() => {
+  motionState.reduce = true;
+  vi.useRealTimers();
+});
+
 vi.mock('../hooks/useServiceStatus.js', () => ({ useServiceStatus: () => ({ summary: null, error: null }) }));
 vi.mock('../hooks/useMetrics.js', () => ({ useMetrics: () => ({ nodes: [], error: null }) }));
-vi.mock('motion/react', async (importOriginal) => ({ ...(await importOriginal()), useReducedMotion: () => true }));
+const motionState = vi.hoisted(() => ({ reduce: true }));
+vi.mock('motion/react', async (importOriginal) => ({ ...(await importOriginal()), useReducedMotion: () => motionState.reduce }));
 
 const { default: App } = await import('../App.jsx');
 const { default: Casino } = await import('./Casino.jsx');
@@ -72,10 +79,17 @@ describe('Casino', () => {
     expect(screen.getByRole('button', { name: 'Spin' })).toBeDisabled();
   });
 
-  test('reboot at zero', async () => {
+  test('Add funds is always there and adds 1000 each time', async () => {
     renderCasino({ storage: fakeStorage('0') });
-    await userEvent.click(screen.getByRole('button', { name: 'Reboot' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Add funds' }));
     expect(chips()).toBe(1000);
+    await userEvent.click(screen.getByRole('button', { name: 'Add funds' }));
+    expect(chips()).toBe(2000);
+  });
+
+  test('Add funds also shows when you still have chips', () => {
+    renderCasino({ storage: fakeStorage() });
+    expect(screen.getByRole('button', { name: 'Add funds' })).toBeInTheDocument();
   });
 
   test('blackjack: deal, stand settles', async () => {
@@ -125,6 +139,39 @@ describe('Casino', () => {
     await setBet(10);
     await userEvent.selectOptions(screen.getByLabelText('Bet on'), 'red');
     await userEvent.click(screen.getByRole('button', { name: 'Spin' }));
+    expect(chips()).toBe(1000 - 10 + roulettePayout({ type: 'red' }, result, 10));
+  });
+
+  test('slots: the legend shows every payout', () => {
+    renderCasino({ storage: fakeStorage() });
+    const legend = screen.getByRole('table', { name: 'Payouts' });
+    for (const text of ['10000x', '100x', '50x', '20x', '10x']) expect(legend).toHaveTextContent(text);
+    expect(legend).toHaveTextContent(/jackpot/i);
+  });
+
+  test('slots with motion: reels spin, then the win is paid', () => {
+    motionState.reduce = false;
+    vi.useFakeTimers();
+    const reels = spinReels(createRng(11));
+    renderCasino({ rng: createRng(11), storage: fakeStorage() });
+    fireEvent.click(screen.getByRole('button', { name: 'Spin' }));
+    expect(screen.getByRole('button', { name: 'Spinning…' })).toBeDisabled();
+    expect(chips()).toBe(990);
+    act(() => vi.advanceTimersByTime(3000));
+    expect(screen.getByRole('button', { name: 'Spin' })).toBeEnabled();
+    expect(chips()).toBe(990 + slotPayout(reels, 10));
+  });
+
+  test('roulette with motion: the ball ends in the winning pocket', () => {
+    motionState.reduce = false;
+    vi.useFakeTimers();
+    const result = spinWheel(createRng(5));
+    renderCasino({ rng: createRng(5), storage: fakeStorage() });
+    fireEvent.click(screen.getByRole('button', { name: 'Roulette' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Spin' }));
+    expect(screen.getByRole('button', { name: 'Spinning…' })).toBeDisabled();
+    act(() => vi.advanceTimersByTime(8000));
+    expect(screen.getByTestId('ball')).toHaveAttribute('data-pocket', String(result));
     expect(chips()).toBe(1000 - 10 + roulettePayout({ type: 'red' }, result, 10));
   });
 });

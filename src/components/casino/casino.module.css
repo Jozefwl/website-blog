@@ -72,38 +72,95 @@
 
 /* Slots */
 .reels {
+  --cell: 84px;
   display: flex;
   gap: 10px;
 }
 
 .reel {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 14px 6px;
-  font-family: var(--font-display);
-  font-size: 0.8rem;
+  height: var(--cell);
+  overflow: hidden; /* casino is flat (no 3D), so clipping is fine here */
   background: var(--lcd-bg);
   border: 1px solid var(--border);
   border-radius: 4px;
+  box-shadow: inset 0 10px 12px -8px rgba(0, 0, 0, 0.8), inset 0 -10px 12px -8px rgba(0, 0, 0, 0.8);
+}
+
+.strip {
+  display: flex;
+  flex-direction: column;
+  animation-name: reel-spin;
+  animation-timing-function: cubic-bezier(0.2, 0.6, 0.25, 1.08);
+  animation-fill-mode: forwards;
+}
+
+@keyframes reel-spin {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(calc(var(--steps) * var(--cell) * -1));
+  }
+}
+
+.cell {
+  flex: none;
+  height: var(--cell);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  color: var(--sym);
 }
 
 .glyph {
-  font-size: 1.8rem;
-  color: var(--lcd-text);
+  font-size: 2.1rem;
+  line-height: 1;
+  color: var(--sym);
+  text-shadow: 0 0 10px var(--sym);
 }
 
-.spun .reel {
-  animation: reel-flash 400ms ease-out;
+.symLabel {
+  opacity: 0.85;
 }
 
-@keyframes reel-flash {
-  from {
-    transform: translateY(-8px);
-    filter: brightness(1.8);
-  }
+.paytable {
+  width: 100%;
+  margin-top: 16px;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+}
+
+.paytable td {
+  padding: 5px 8px;
+  border-top: 1px solid var(--border);
+}
+
+.payGlyphs {
+  color: var(--sym);
+  letter-spacing: 0.25em;
+  font-size: 1.1rem;
+  text-shadow: 0 0 6px var(--sym);
+}
+
+.payX {
+  text-align: right;
+  font-family: var(--font-display);
+  color: var(--text);
+}
+
+.jackpotRow {
+  background: rgba(250, 204, 21, 0.08);
+}
+
+.jackpotTag {
+  color: #facc15;
+  font-size: 0.75rem;
 }
 
 /* Blackjack */
@@ -117,8 +174,9 @@
 }
 
 .card {
-  min-width: 2.4em;
-  padding: 8px 6px;
+  min-width: 2.9em;
+  padding: 10px 7px;
+  font-size: 1.2em;
   text-align: center;
   color: #10131a;
   background: #e6e9ef;
@@ -156,8 +214,10 @@
   background: #13803c;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .spun .reel {
-    animation: none;
-  }
+/* Roulette wheel */
+.wheel {
+  display: block;
+  width: min(100%, 320px);
+  margin: 0 auto 12px;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.6));
 }

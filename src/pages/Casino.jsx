@@ -48,18 +48,16 @@ export default function Casino({ rng = Math.random, storage }) {
         <p className={styles.chips} aria-live="polite">
           Chips: <strong data-testid="chips">{balance}</strong>
         </p>
-        {balance === 0 && (
-          <button
-            type="button"
-            className={casinoStyles.button}
-            onClick={() => {
-              chips.reboot();
-              refresh();
-            }}
-          >
-            Reboot
-          </button>
-        )}
+        <button
+          type="button"
+          className={casinoStyles.button}
+          onClick={() => {
+            chips.addFunds();
+            refresh();
+          }}
+        >
+          Add funds
+        </button>
       </div>
 
       <div className={styles.tabs} role="group" aria-label="Games">

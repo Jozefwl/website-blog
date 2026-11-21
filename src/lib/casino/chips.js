@@ -37,8 +37,9 @@ export function createChipStore(storage, { start = 1000, key = 'casino.chips' } 
       balance += amount;
       write();
     },
-    reboot() {
-      balance = start;
+    // Play money: top up any time.
+    addFunds(amount = start) {
+      balance += amount;
       write();
     },
   };

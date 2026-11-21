@@ -2,8 +2,11 @@ import RackLink from './RackLink.jsx';
 import styles from './ProjectCard.module.css';
 
 // One project: what it is, why, the hard part, the stack, and where to look.
+// Always exactly five rows (missing ones render as empty placeholders) so that the cards
+// can share the grid's rows (subgrid) and every section lines up across the row of cards.
 export default function ProjectCard({ project }) {
   const { name, context, description, hardPart, stack, links = [] } = project;
+  const empty = (className) => <p className={className} aria-hidden="true" />;
 
   return (
     <article className={styles.card}>
@@ -12,17 +15,21 @@ export default function ProjectCard({ project }) {
         {context && <p className={styles.context}>{context}</p>}
       </header>
       <p className={styles.description}>{description}</p>
-      {hardPart && (
+      {hardPart ? (
         <p className={styles.detail}>
           <span className={styles.label}>Hard part:</span> {hardPart}
         </p>
+      ) : (
+        empty(styles.detail)
       )}
-      {stack && (
+      {stack ? (
         <p className={styles.detail}>
           <span className={styles.label}>Stack:</span> {stack}
         </p>
+      ) : (
+        empty(styles.detail)
       )}
-      {links.length > 0 && (
+      {links.length > 0 ? (
         <p className={styles.links}>
           {links.map(({ label, href, internal }) =>
             internal ? (
@@ -36,6 +43,8 @@ export default function ProjectCard({ project }) {
             ),
           )}
         </p>
+      ) : (
+        empty(styles.links)
       )}
     </article>
   );
