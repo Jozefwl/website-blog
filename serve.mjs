@@ -13,12 +13,13 @@ export const SECURITY_HEADERS = {
     "object-src 'none'",
     "frame-ancestors 'self'",
     // The Vite build has no inline scripts, so none are allowed (blocks injected <script> XSS).
-    "script-src 'self'",
+    // Cloudflare injects its Web Analytics beacon into the HTML at the edge.
+    "script-src 'self' https://static.cloudflareinsights.com",
     "form-action 'self'",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com",
     "img-src 'self' data: https:",
-    "connect-src 'self' https://metrics.waldhauser.sk",
+    "connect-src 'self' https://metrics.waldhauser.sk https://cloudflareinsights.com",
     "frame-src 'self' https://www.meteoblue.com",
     'upgrade-insecure-requests',
   ].join('; '),

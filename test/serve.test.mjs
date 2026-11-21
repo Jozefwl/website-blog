@@ -73,3 +73,15 @@ test('HEAD works, other methods are 405', async () => {
   assert.equal(post.status, 405);
   assert.equal(post.headers.allow, 'GET, HEAD');
 });
+
+test('CSP allows Cloudflare Web Analytics but no inline scripts', () => {
+  const csp = Object.fromEntries(
+    SECURITY_HEADERS['Content-Security-Policy'].split('; ').map((d) => {
+      const [name, ...values] = d.split(' ');
+      return [name, values];
+    }),
+  );
+  assert.ok(csp['script-src'].includes('https://static.cloudflareinsights.com'));
+  assert.ok(csp['connect-src'].includes('https://cloudflareinsights.com'));
+  assert.ok(!csp['script-src'].includes("'unsafe-inline'"));
+});
