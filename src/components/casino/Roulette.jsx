@@ -3,15 +3,16 @@ import { useReducedMotion } from 'motion/react';
 import { colorOf, roulettePayout, spinWheel } from '../../lib/casino/roulette.js';
 import BetField, { toBet } from './BetField.jsx';
 import RouletteWheel from './RouletteWheel.jsx';
+import DoubleOrNothing from './DoubleOrNothing.jsx';
 import { useLang } from '../../i18n/LanguageContext.jsx';
+import styles from './casino.module.css';
 
 const WHEEL_MS = 5000;
-import styles from './casino.module.css';
 
 const BET_TYPES = ['red', 'black', 'odd', 'even', 'low', 'high', 'number'];
 
 // European wheel: a number pays 35:1, outside bets pay 1:1, zero loses every outside bet.
-export default function Roulette({ chips, rng, onChange }) {
+export default function Roulette({ chips, rng, onChange, onWin = () => {}, onRoundStart = () => {}, offer, onAcceptOffer, onDeclineOffer }) {
   const reduceMotion = useReducedMotion();
   const { t } = useLang();
   const [bet, setBet] = useState('10');
@@ -36,28 +37,30 @@ export default function Roulette({ chips, rng, onChange }) {
     [chips],
   );
 
-  function settle(result, won) {
+  function settle(result, won, stake) {
     pending.current = null;
     chips.give(won);
     setLast(result);
     setSettled(true);
     setMessage(won > 0 ? { key: 'casino.plusChips', vars: { count: won } } : { key: 'casino.roulette.lose' });
     onChange();
+    onWin(won - stake);
   }
 
   function play() {
     if (!settled || !numberOk || !chips.take(amount)) return;
+    onRoundStart();
     const result = spinWheel(rng);
     const won = roulettePayout({ type, value: pick }, result, amount);
     onChange();
     setSpin({ result, durationMs: reduceMotion ? 0 : WHEEL_MS });
     if (reduceMotion) {
-      settle(result, won);
+      settle(result, won, amount);
       return;
     }
     setSettled(false);
     setMessage({ key: 'casino.roulette.noMoreBets' });
-    pending.current = { won, timer: setTimeout(() => settle(result, won), WHEEL_MS) };
+    pending.current = { won, timer: setTimeout(() => settle(result, won, amount), WHEEL_MS) };
   }
 
   return (
@@ -99,6 +102,7 @@ export default function Roulette({ chips, rng, onChange }) {
         </button>
       </div>
       <p className={styles.lcd}>{t(message.key, message.vars)}</p>
+      {offer && <DoubleOrNothing onAccept={onAcceptOffer} onDecline={onDeclineOffer} />}
     </section>
   );
 }

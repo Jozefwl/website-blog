@@ -6,8 +6,8 @@ export const BANK_START = 100000;
 
 export const createBank = (storage) => createChipStore(storage, { start: BANK_START, key: 'jozefpay.bank' });
 
-// Gateways are slow. This one is slow on purpose: 5 to 10 seconds.
-export const gatewayDelay = (rng) => 5000 + Math.floor(rng() * 5001);
+// Gateways are slow. This one is slow on purpose: 1 to 5 seconds.
+export const gatewayDelay = (rng) => 1000 + Math.floor(rng() * 4001);
 
 // Whole euros only; anything else is not a valid amount.
 export function parseAmount(raw) {

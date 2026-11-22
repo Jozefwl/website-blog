@@ -37,11 +37,15 @@ export function dealerPlay(hand, deck) {
   return { hand: h, deck: d };
 }
 
+// Two ten-value cards (10, J, Q, K) = 20 can be split into two hands, one ten each.
+export const canSplit = (cards) => cards.length === 2 && cards.every((c) => cardValue(c.rank) === 10);
+
 // Total credited back for the round (0 = lost the bet, bet = push).
-export function settle(player, dealer, bet) {
+// A 21 on a split hand is not a blackjack: it pays like a normal win.
+export function settle(player, dealer, bet, { split = false } = {}) {
   const p = handValue(player).total;
   const d = handValue(dealer).total;
-  const playerBj = isBlackjack(player);
+  const playerBj = !split && isBlackjack(player);
   const dealerBj = isBlackjack(dealer);
   if (p > 21) return 0;
   if (playerBj && dealerBj) return bet;

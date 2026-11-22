@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useReducedMotion } from 'motion/react';
 import { SLOT_PAYTABLE, SLOT_SYMBOLS, slotPayout, spinReels } from '../../lib/casino/slots.js';
 import BetField, { toBet } from './BetField.jsx';
+import DoubleOrNothing from './DoubleOrNothing.jsx';
 import { useLang } from '../../i18n/LanguageContext.jsx';
 import styles from './casino.module.css';
 
@@ -19,6 +20,8 @@ const REEL_BASE_S = 1.1;
 const REEL_STAGGER_S = 0.4;
 const STRIP_LENGTH = 14;
 const SPIN_MS = (REEL_BASE_S + 2 * REEL_STAGGER_S) * 1000 + 100;
+// Autospin: a short breather between spins; a win switches it off.
+const AUTO_GAP_MS = 400;
 
 function Symbol({ symbol }) {
   const { t } = useLang();
@@ -41,7 +44,7 @@ const makeStrip = (from, to) => [
   to,
 ];
 
-export default function Slots({ chips, rng, onChange }) {
+export default function Slots({ chips, rng, onChange, onWin = () => {}, onRoundStart = () => {}, offer, onAcceptOffer, onDeclineOffer }) {
   const reduceMotion = useReducedMotion();
   const { t } = useLang();
   const [bet, setBet] = useState('10');
@@ -50,6 +53,18 @@ export default function Slots({ chips, rng, onChange }) {
   const [message, setMessage] = useState({ key: 'casino.slots.intro' });
   const pending = useRef(null);
   const amount = toBet(bet);
+  const [auto, setAuto] = useState(false);
+  const autoRef = useRef(false);
+  const autoTimer = useRef(null);
+  const spinRef = useRef(null);
+
+  const stopAuto = () => {
+    autoRef.current = false;
+    clearTimeout(autoTimer.current);
+    setAuto(false);
+  };
+
+  useEffect(() => () => clearTimeout(autoTimer.current), []);
 
   // Leaving mid-spin still pays out what the reels were going to show.
   useEffect(
@@ -61,27 +76,49 @@ export default function Slots({ chips, rng, onChange }) {
     [chips],
   );
 
-  function settle(result, won) {
+  function settle(result, won, stake) {
     pending.current = null;
     chips.give(won);
     setReels(result);
     setStrips(null);
     setMessage(won > 0 ? { key: 'casino.plusChips', vars: { count: won } } : { key: 'casino.slots.lose' });
     onChange();
+    onWin(won - stake);
+    if (autoRef.current && won > 0) stopAuto(); // a win ends autospin
+    else if (autoRef.current) {
+      autoTimer.current = setTimeout(() => {
+        if (!autoRef.current) return;
+        if (!spinRef.current()) stopAuto(); // can't afford the next spin
+      }, AUTO_GAP_MS);
+    }
   }
 
+  // Returns false when the spin could not start (not enough chips, or reels still turning).
   function spin() {
-    if (strips || !chips.take(amount)) return;
+    if (pending.current || !chips.take(amount)) return false;
+    onRoundStart();
     const result = spinReels(rng);
     const won = slotPayout(result, amount);
     onChange();
     if (reduceMotion) {
-      settle(result, won);
-      return;
+      settle(result, won, amount);
+      return true;
     }
     setStrips(result.map((symbol, i) => makeStrip(reels[i], symbol)));
     setMessage({ key: 'casino.slots.spinning' });
-    pending.current = { won, timer: setTimeout(() => settle(result, won), SPIN_MS) };
+    pending.current = { won, timer: setTimeout(() => settle(result, won, amount), SPIN_MS) };
+    return true;
+  }
+  spinRef.current = spin;
+
+  function toggleAuto() {
+    if (autoRef.current) {
+      stopAuto();
+      return;
+    }
+    autoRef.current = true;
+    setAuto(true);
+    if (!pending.current && !spin()) stopAuto();
   }
 
   const spinning = strips !== null;
@@ -114,11 +151,29 @@ export default function Slots({ chips, rng, onChange }) {
       </div>
       <div className={styles.controls}>
         <BetField value={bet} onChange={setBet} />
-        <button type="button" className={styles.button} onClick={spin} disabled={spinning || !chips.canBet(amount)}>
+        <button type="button" className={styles.button} onClick={spin} disabled={auto || spinning || !chips.canBet(amount)}>
           {t(spinning ? 'casino.slots.spinning' : 'casino.slots.spin')}
+        </button>
+        <button
+          type="button"
+          className={`${styles.button} ${auto ? styles.on : ''}`}
+          aria-pressed={auto}
+          onClick={toggleAuto}
+          disabled={!auto && !chips.canBet(amount)}
+        >
+          {t('casino.slots.auto')}
         </button>
       </div>
       <p className={styles.lcd}>{t(message.key, message.vars)}</p>
+      {offer && (
+        <DoubleOrNothing
+          onAccept={() => {
+            stopAuto(); // gambling the win stops autospin
+            onAcceptOffer();
+          }}
+          onDecline={onDeclineOffer}
+        />
+      )}
 
       <table className={styles.paytable} aria-label={t('casino.slots.payouts')}>
         <tbody>

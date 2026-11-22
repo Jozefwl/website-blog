@@ -1,0 +1,31 @@
+.layer {
+  position: fixed;
+  inset: 0;
+  z-index: 900; /* under the JozefPay / coin dialogs (1000) */
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.piece {
+  position: absolute;
+  top: -20px;
+  width: 7px;
+  height: 12px;
+  border-radius: 1px;
+  opacity: 0.95;
+  animation-name: confetti-fall;
+  animation-timing-function: cubic-bezier(0.25, 0.6, 0.4, 1);
+  animation-fill-mode: forwards;
+}
+
+.wide {
+  width: 11px;
+  height: 6px;
+}
+
+@keyframes confetti-fall {
+  to {
+    transform: translate3d(var(--drift), 105vh, 0) rotate(var(--spin));
+    opacity: 0.85;
+  }
+}

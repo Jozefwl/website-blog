@@ -2,7 +2,8 @@ import { describe, expect, test } from 'vitest';
 import { createRng } from './rng.js';
 import { createChipStore } from './chips.js';
 import { SLOT_PAYTABLE, SLOT_SYMBOLS, expectedSlotReturn, slotPayout, spinReels } from './slots.js';
-import { createDeck, dealerPlay, handValue, isBlackjack, settle, shuffle } from './blackjack.js';
+import { canSplit, createDeck, dealerPlay, handValue, isBlackjack, settle, shuffle } from './blackjack.js';
+import { flipCoin } from './coin.js';
 import { WHEEL_ORDER, colorOf, pocketAngle, roulettePayout, spinWheel } from './roulette.js';
 import { ballPosition, planBallPath } from './wheelMotion.js';
 import { BANK_START, createBank, formatMoney, gatewayDelay, parseAmount } from './gateway.js';
@@ -244,13 +245,13 @@ describe('roulette ball path', () => {
 });
 
 describe('JozefPay gateway', () => {
-  test('loading takes a random 5 to 10 seconds', () => {
-    expect(gatewayDelay(() => 0)).toBe(5000);
-    expect(gatewayDelay(() => 0.999999)).toBe(10000);
+  test('loading takes a random 1 to 5 seconds', () => {
+    expect(gatewayDelay(() => 0)).toBe(1000);
+    expect(gatewayDelay(() => 0.999999)).toBe(5000);
     const rng = createRng(8);
     for (let i = 0; i < 50; i += 1) {
       const ms = gatewayDelay(rng);
-      expect(ms >= 5000 && ms <= 10000).toBe(true);
+      expect(ms >= 1000 && ms <= 5000).toBe(true);
     }
   });
 
@@ -293,5 +294,36 @@ describe('money format per language', () => {
     expect(formatMoney(100000, 'sk')).toBe('100 000,00 €'); // no-break spaces
     expect(formatMoney(5, 'sk')).toBe('5,00 €');
     expect(formatMoney(100000)).toBe('€100,000.00'); // English stays the default
+  });
+});
+
+describe('blackjack split', () => {
+  test('a 20 made of two ten-value cards can be split', () => {
+    expect(canSplit(hand('K', 'Q'))).toBe(true);
+    expect(canSplit(hand('10', 'J'))).toBe(true);
+    expect(canSplit(hand('A', '9'))).toBe(false); // 20, but not two tens
+    expect(canSplit(hand('9', '9'))).toBe(false);
+    expect(canSplit(hand('K', 'Q', 'A'))).toBe(false);
+  });
+
+  test('21 on a split hand pays like a normal win, not 3:2', () => {
+    expect(settle(hand('K', 'A'), hand('10', '7'), 10, { split: true })).toBe(20);
+    expect(settle(hand('K', 'A'), hand('10', '7'), 10)).toBe(25);
+  });
+});
+
+describe('coin flip', () => {
+  test('heads below 0.5, tails from 0.5', () => {
+    expect(flipCoin(() => 0)).toBe('heads');
+    expect(flipCoin(() => 0.4999)).toBe('heads');
+    expect(flipCoin(() => 0.5)).toBe('tails');
+  });
+
+  test('a fair coin over many flips', () => {
+    const rng = createRng(77);
+    let heads = 0;
+    for (let i = 0; i < 10000; i += 1) if (flipCoin(rng) === 'heads') heads += 1;
+    expect(heads / 10000).toBeGreaterThan(0.47);
+    expect(heads / 10000).toBeLessThan(0.53);
   });
 });

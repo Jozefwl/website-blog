@@ -221,3 +221,44 @@
   margin: 0 auto 12px;
   filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.6));
 }
+
+/* Double or nothing: offered right under a win. */
+.double {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 10px 12px;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  color: #facc15;
+  border: 1px dashed rgba(250, 204, 21, 0.55);
+  border-radius: 4px;
+  background: rgba(250, 204, 21, 0.06);
+}
+
+.double span {
+  margin-right: auto;
+}
+
+.gold {
+  color: #1b1503;
+  background: linear-gradient(180deg, #fbe7a6, #d8ad4a);
+  border-color: #9c7420;
+}
+
+/* Autospin toggle while it is running. */
+.on {
+  color: #1b1503;
+  background: var(--led-up);
+  border-color: var(--led-up);
+}
+
+/* Blackjack split: the hand in play is highlighted. */
+.activeHand {
+  margin: 0 -8px;
+  padding: 4px 8px;
+  border-left: 3px solid #facc15;
+  background: rgba(250, 204, 21, 0.06);
+}
