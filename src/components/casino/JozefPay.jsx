@@ -10,6 +10,10 @@ import styles from './JozefPay.module.css';
 // -> checkmark (1 s) -> closes. The money moves when the checkmark appears; while it is
 // processing the window can't be closed.
 const SUCCESS_MS = 1000;
+// "Cashout to real bank account": the answer is a picture, shown for 5 s, then the gateway closes.
+// The IBAN / BIC typed in are never sent or stored anywhere, and are cleared on Send.
+const FINGER_SRC = 'https://cdn.waldhauser.sk/icons/middlefinger.png';
+const FINGER_MS = 5000;
 
 export default function JozefPay({ bank, chips, onPaid, onClose, delayRng = Math.random }) {
   const { lang, t } = useLang();
@@ -20,6 +24,10 @@ export default function JozefPay({ bank, chips, onPaid, onClose, delayRng = Math
   const [toppedUp, setToppedUp] = useState(false);
   const [confirming, setConfirming] = useState(false); // "Do you really want to add...?"
   const confirmYesRef = useRef(null);
+  const [realBank, setRealBank] = useState(false);
+  const [iban, setIban] = useState('');
+  const [bic, setBic] = useState('');
+  const [finger, setFinger] = useState(false);
   const dialogRef = useRef(null);
   const amountRef = useRef(null);
   const timers = useRef([]);
@@ -35,7 +43,7 @@ export default function JozefPay({ bank, chips, onPaid, onClose, delayRng = Math
     if (step === 'form') amountRef.current?.focus();
   }, [step]);
 
-  const busy = step === 'processing' || step === 'done';
+  const busy = step === 'processing' || step === 'done' || finger;
   const close = () => {
     if (!busy) onClose();
   };
@@ -59,6 +67,19 @@ export default function JozefPay({ bank, chips, onPaid, onClose, delayRng = Math
       setStep('done');
       later(onClose, SUCCESS_MS);
     }, gatewayDelay(delayRng));
+  }
+
+  function sendToRealBank() {
+    setIban('');
+    setBic('');
+    setRealBank(false);
+    setFinger(true);
+    later(onClose, FINGER_MS);
+  }
+
+  function chooseMode(m) {
+    setMode(m);
+    setRealBank(false);
   }
 
   function topUp() {
@@ -123,7 +144,7 @@ export default function JozefPay({ bank, chips, onPaid, onClose, delayRng = Math
             <h2 className={styles.title}>{t('pay.title')}</h2>
             <div className={styles.modes} role="group" aria-label={t('pay.title')}>
               {['in', 'out'].map((m) => (
-                <button key={m} type="button" className={styles.mode} aria-pressed={mode === m} onClick={() => setMode(m)}>
+                <button key={m} type="button" className={styles.mode} aria-pressed={mode === m} onClick={() => chooseMode(m)}>
                   {t(m === 'in' ? 'pay.toCasino' : 'pay.fromCasino')}
                 </button>
               ))}
@@ -146,42 +167,82 @@ export default function JozefPay({ bank, chips, onPaid, onClose, delayRng = Math
                 {toppedUp && <span className={styles.muted}>{t('pay.toppedUp', { amount: money(BANK_START) })}</span>}
               </div>
             )}
-
-            <div className={styles.field}>
-              <label htmlFor="jozefpay-amount">{t('pay.amount')}</label>
-              <span className={styles.inputWrap}>
-                <span className={styles.currency} aria-hidden="true">
-                  €
-                </span>
-                <input
-                  id="jozefpay-amount"
-                  ref={amountRef}
-                  type="text"
-                  inputMode="numeric"
-                  autoComplete="off"
-                  placeholder="0"
-                  value={raw}
-                  onChange={(e) => setRaw(e.target.value)}
-                  aria-invalid={insufficient || notEnoughChips || undefined}
-                />
-              </span>
-            </div>
-            {(insufficient || notEnoughChips) && (
-              <p className={styles.error} role="alert">
-                {t(insufficient ? 'pay.insufficient' : 'pay.notEnoughChips')}
-              </p>
+            {mode === 'out' && !realBank && (
+              <div className={styles.topUp}>
+                <button type="button" className={styles.topUpButton} onClick={() => setRealBank(true)}>
+                  {t('pay.realBank')}
+                </button>
+              </div>
             )}
-            <p className={styles.muted}>{t('pay.rate')}</p>
 
-            <div className={styles.actions}>
-              <button type="button" className={styles.secondary} onClick={close}>
-                {t('pay.cancel')}
-              </button>
-              <button type="submit" className={styles.primary} disabled={!canPay}>
-                {t(mode === 'in' ? 'pay.pay' : 'pay.cashOut')} {canPay ? money(amount) : ''}
-              </button>
-            </div>
+            {mode === 'out' && realBank ? (
+              <>
+                <div className={styles.field}>
+                  <label htmlFor="jozefpay-iban">{t('pay.iban')}</label>
+                  <span className={styles.inputWrap}>
+                    <input id="jozefpay-iban" type="text" autoComplete="off" spellCheck="false" value={iban} onChange={(e) => setIban(e.target.value)} />
+                  </span>
+                </div>
+                <div className={`${styles.field} ${styles.gap}`}>
+                  <label htmlFor="jozefpay-bic">{t('pay.bic')}</label>
+                  <span className={styles.inputWrap}>
+                    <input id="jozefpay-bic" type="text" autoComplete="off" spellCheck="false" value={bic} onChange={(e) => setBic(e.target.value)} />
+                  </span>
+                </div>
+                <div className={styles.actions}>
+                  <button type="button" className={styles.secondary} onClick={() => setRealBank(false)}>
+                    {t('pay.back')}
+                  </button>
+                  <button type="button" className={styles.primary} disabled={!iban.trim() || !bic.trim()} onClick={sendToRealBank}>
+                    {t('pay.send')}
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className={styles.field}>
+                  <label htmlFor="jozefpay-amount">{t('pay.amount')}</label>
+                  <span className={styles.inputWrap}>
+                    <span className={styles.currency} aria-hidden="true">
+                      €
+                    </span>
+                    <input
+                      id="jozefpay-amount"
+                      ref={amountRef}
+                      type="text"
+                      inputMode="numeric"
+                      autoComplete="off"
+                      placeholder="0"
+                      value={raw}
+                      onChange={(e) => setRaw(e.target.value)}
+                      aria-invalid={insufficient || notEnoughChips || undefined}
+                    />
+                  </span>
+                </div>
+                {(insufficient || notEnoughChips) && (
+                  <p className={styles.error} role="alert">
+                    {t(insufficient ? 'pay.insufficient' : 'pay.notEnoughChips')}
+                  </p>
+                )}
+                <p className={styles.muted}>{t('pay.rate')}</p>
+
+                <div className={styles.actions}>
+                  <button type="button" className={styles.secondary} onClick={close}>
+                    {t('pay.cancel')}
+                  </button>
+                  <button type="submit" className={styles.primary} disabled={!canPay}>
+                    {t(mode === 'in' ? 'pay.pay' : 'pay.cashOut')} {canPay ? money(amount) : ''}
+                  </button>
+                </div>
+              </>
+            )}
           </form>
+        )}
+
+        {finger && (
+          <div className={styles.fingerLayer}>
+            <img className={styles.finger} src={FINGER_SRC} width="1080" height="884" alt={t('pay.nope')} />
+          </div>
         )}
 
         {confirming && (

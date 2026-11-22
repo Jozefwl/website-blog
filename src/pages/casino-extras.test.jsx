@@ -280,3 +280,61 @@ describe('JozefPay: where "I ran out of money" shows', () => {
     expect(within(dialog).getByRole('button', { name: 'I ran out of money' })).toBeInTheDocument();
   });
 });
+
+describe('JozefPay: "Cashout to real bank account"', () => {
+  function openCashOut(storage = fakeStorage()) {
+    vi.useFakeTimers();
+    renderCasino({ storage, gatewayRng: () => 0.3333 }); // every wait is exactly 1 s
+    fireEvent.click(screen.getByRole('button', { name: 'Add funds' }));
+    tick(1000);
+    const dialog = screen.getByRole('dialog', { name: /JozefPay/ });
+    return dialog;
+  }
+
+  test('only offered on the cash-out side', () => {
+    const dialog = openCashOut();
+    expect(within(dialog).queryByRole('button', { name: 'Cashout to real bank account' })).toBeNull();
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Cash out from casino' }));
+    expect(within(dialog).getByRole('button', { name: 'Cashout to real bank account' })).toBeInTheDocument();
+  });
+
+  test('asks for IBAN and BIC/SWIFT; Send needs both; Back returns', () => {
+    const dialog = openCashOut();
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Cash out from casino' }));
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Cashout to real bank account' }));
+    const iban = within(dialog).getByLabelText('IBAN');
+    const bic = within(dialog).getByLabelText('BIC/SWIFT');
+    expect(iban).toHaveAttribute('autocomplete', 'off');
+    expect(within(dialog).getByRole('button', { name: 'Send' })).toBeDisabled();
+    fireEvent.change(iban, { target: { value: 'SK31 1200 0000 1987 4263 7541' } });
+    expect(within(dialog).getByRole('button', { name: 'Send' })).toBeDisabled();
+    fireEvent.change(bic, { target: { value: 'TATRSKBX' } });
+    expect(within(dialog).getByRole('button', { name: 'Send' })).toBeEnabled();
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Back' }));
+    expect(within(dialog).queryByLabelText('IBAN')).toBeNull();
+    expect(within(dialog).getByLabelText('Amount')).toBeInTheDocument();
+  });
+
+  test('Send shows the picture for 5 s, then closes the gateway; nothing is kept', () => {
+    const storage = fakeStorage();
+    const dialog = openCashOut(storage);
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Cash out from casino' }));
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Cashout to real bank account' }));
+    fireEvent.change(within(dialog).getByLabelText('IBAN'), { target: { value: 'SK31 1200 0000 1987 4263 7541' } });
+    fireEvent.change(within(dialog).getByLabelText('BIC/SWIFT'), { target: { value: 'TATRSKBX' } });
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Send' }));
+
+    const img = screen.getByRole('img', { name: 'Nice try.' });
+    expect(img).toHaveAttribute('src', 'https://cdn.waldhauser.sk/icons/middlefinger.png');
+    expect(img).toHaveAttribute('width', '1080');
+    expect(img).toHaveAttribute('height', '884');
+    tick(4999);
+    expect(screen.getByRole('img', { name: 'Nice try.' })).toBeInTheDocument();
+    tick(1);
+    expect(screen.queryByRole('img', { name: 'Nice try.' })).toBeNull();
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(chips()).toBe(1000);
+    expect(storage.getItem('jozefpay.bank')).toBeNull(); // bank untouched (never written)
+    expect(document.body.innerHTML).not.toContain('TATRSKBX'); // typed details are gone
+  });
+});

@@ -207,6 +207,12 @@ export default {
     confirmTopUp: 'Do you really want to add {amount} to your account?',
     yes: 'Yes',
     no: 'No',
+    realBank: 'Cashout to real bank account',
+    iban: 'IBAN',
+    bic: 'BIC/SWIFT',
+    send: 'Send',
+    back: 'Back',
+    nope: 'Nice try.',
     disclaimer:
       'JozefPay is a fictional payment service for the waldhauser.sk casino. No real money, card or personal data is used, and balances exist only in this browser. By selecting Pay you authorise JozefPay to transfer the amount shown from your JozefPay account to the merchant. Transfers are final and cannot be reversed. JozefPay is not a bank and is not regulated by anyone, least of all a central bank.',
     links: '© 2026 JozefPay · Terms · Blood contracts · Help',
