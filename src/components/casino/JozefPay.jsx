@@ -6,7 +6,7 @@ import styles from './JozefPay.module.css';
 // JozefPay: a fake card-payment page that pops up over the casino. Corporate white, navy and
 // gold, like a real checkout, but it only ever asks for an amount and only moves play money
 // between the browser-stored "bank" and the chips: pay into the casino, or cash out of it.
-// "I ran out of money" tops the bank up. Steps: connecting (1-5 s) -> form -> processing (1-5 s)
+// "I ran out of money" tops the bank up. Steps: connecting (0-3 s) -> form -> processing (0-3 s)
 // -> checkmark (1 s) -> closes. The money moves when the checkmark appears; while it is
 // processing the window can't be closed.
 const SUCCESS_MS = 1000;
@@ -138,12 +138,14 @@ export default function JozefPay({ bank, chips, onPaid, onClose, delayRng = Math
               <dt>{t('pay.chips')}</dt>
               <dd>{chipBalance}</dd>
             </dl>
-            <div className={styles.topUp}>
-              <button type="button" className={styles.link} onClick={() => setConfirming(true)}>
-                {t('pay.outOfMoney')}
-              </button>
-              {toppedUp && <span className={styles.muted}>{t('pay.toppedUp', { amount: money(BANK_START) })}</span>}
-            </div>
+            {mode === 'in' && (
+              <div className={styles.topUp}>
+                <button type="button" className={styles.topUpButton} onClick={() => setConfirming(true)}>
+                  {t('pay.outOfMoney')}
+                </button>
+                {toppedUp && <span className={styles.muted}>{t('pay.toppedUp', { amount: money(BANK_START) })}</span>}
+              </div>
+            )}
 
             <div className={styles.field}>
               <label htmlFor="jozefpay-amount">{t('pay.amount')}</label>

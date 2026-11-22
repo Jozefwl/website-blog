@@ -245,13 +245,13 @@ describe('roulette ball path', () => {
 });
 
 describe('JozefPay gateway', () => {
-  test('loading takes a random 1 to 5 seconds', () => {
-    expect(gatewayDelay(() => 0)).toBe(1000);
-    expect(gatewayDelay(() => 0.999999)).toBe(5000);
+  test('loading takes a random 0 to 3 seconds', () => {
+    expect(gatewayDelay(() => 0)).toBe(0);
+    expect(gatewayDelay(() => 0.999999)).toBe(3000);
     const rng = createRng(8);
     for (let i = 0; i < 50; i += 1) {
       const ms = gatewayDelay(rng);
-      expect(ms >= 1000 && ms <= 5000).toBe(true);
+      expect(ms >= 0 && ms <= 3000).toBe(true);
     }
   });
 

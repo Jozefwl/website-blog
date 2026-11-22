@@ -207,7 +207,7 @@ describe('JozefPay: cash out and top up', () => {
   };
   function openGateway(storage) {
     vi.useFakeTimers();
-    renderCasino({ storage, gatewayRng: () => 0 }); // every wait is 1 s
+    renderCasino({ storage, gatewayRng: () => 0.3333 }); // every wait is exactly 1 s
     fireEvent.click(screen.getByRole('button', { name: 'Add funds' }));
     tick(1000);
     return screen.getByRole('dialog', { name: /JozefPay/ });
@@ -263,5 +263,20 @@ describe('JozefPay: cash out and top up', () => {
     expect(screen.getByRole('dialog', { name: /JozefPay/ })).toBeInTheDocument(); // JozefPay stays open
     expect(within(dialog).getByText('€0.00')).toBeInTheDocument();
     expect(storage.getItem('jozefpay.bank')).toBe('0');
+  });
+});
+
+describe('JozefPay: where "I ran out of money" shows', () => {
+  test('only on "Add to casino", not on "Cash out from casino"', () => {
+    vi.useFakeTimers();
+    renderCasino({ gatewayRng: () => 0 });
+    fireEvent.click(screen.getByRole('button', { name: 'Add funds' }));
+    tick(1000);
+    const dialog = screen.getByRole('dialog', { name: /JozefPay/ });
+    expect(within(dialog).getByRole('button', { name: 'I ran out of money' })).toBeInTheDocument();
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Cash out from casino' }));
+    expect(within(dialog).queryByRole('button', { name: 'I ran out of money' })).toBeNull();
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Add to casino' }));
+    expect(within(dialog).getByRole('button', { name: 'I ran out of money' })).toBeInTheDocument();
   });
 });

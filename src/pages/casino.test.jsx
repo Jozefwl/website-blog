@@ -93,28 +93,28 @@ describe('Casino', () => {
 
   test('JozefPay loads for a while before showing the form', () => {
     vi.useFakeTimers();
-    renderCasino({ storage: fakeStorage() });
+    renderCasino({ storage: fakeStorage(), gatewayRng: () => 0.5 }); // a 1.5 s wait
     fireEvent.click(screen.getByRole('button', { name: 'Add funds' }));
     const dialog = screen.getByRole('dialog', { name: /JozefPay/ });
     expect(within(dialog).getByRole('status')).toHaveTextContent(/connecting/i);
     expect(within(dialog).queryByLabelText('Amount')).toBeNull();
-    act(() => vi.advanceTimersByTime(999));
-    expect(within(dialog).queryByLabelText('Amount')).toBeNull(); // never faster than 1 s
-    act(() => vi.advanceTimersByTime(4001));
+    act(() => vi.advanceTimersByTime(1499));
+    expect(within(dialog).queryByLabelText('Amount')).toBeNull();
+    act(() => vi.advanceTimersByTime(1));
     expect(within(dialog).getByRole('heading', { name: 'Add funds' })).toBeInTheDocument();
     expect(within(dialog).getByText('€100,000.00')).toBeInTheDocument();
   });
 
-  test('paying: processing 1-5 s, then a checkmark for 1 s, then it closes', () => {
+  test('paying: processing 0-3 s, then a checkmark for 1 s, then it closes', () => {
     vi.useFakeTimers();
     const storage = fakeStorage();
-    renderCasino({ storage, gatewayRng: () => 0.999999 }); // slowest gateway: every wait is exactly 5 s
+    renderCasino({ storage, gatewayRng: () => 0.999999 }); // slowest gateway: every wait is exactly 3 s
     const dialog = openGateway();
     fireEvent.change(within(dialog).getByLabelText('Amount'), { target: { value: '5000' } });
     fireEvent.click(within(dialog).getByRole('button', { name: /^Pay/ }));
 
     expect(within(dialog).getByRole('status')).toHaveTextContent(/processing transaction/i);
-    act(() => vi.advanceTimersByTime(4999));
+    act(() => vi.advanceTimersByTime(2999));
     expect(chips()).toBe(1000); // nothing moves while processing
     expect(within(dialog).getByRole('status')).toHaveTextContent(/processing transaction/i);
 
